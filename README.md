@@ -27,7 +27,7 @@ poetry install
 프로젝트를 실행하기 위해 다음 명령어를 사용합니다:
 ```bash
 poetry shell
-poetry run python src/main.py
+poetry run python src/app.py
 ```
 
 ## 과제 개요

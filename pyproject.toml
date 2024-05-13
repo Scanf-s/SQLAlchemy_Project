@@ -6,9 +6,10 @@ authors = ["Scanf-s <calzone0404@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.10"
 Faker = "^24.11.0"
 SQLAlchemy = "^2.0.29"
+faker-airtravel = "^0.4"
 
 
 [build-system]

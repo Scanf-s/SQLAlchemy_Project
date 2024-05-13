@@ -9,25 +9,41 @@
 - MySQL 데이터베이스 서버
 
 ### 설치
+#### !!!!추후 Docker로 변경 예정 입니다!!!!
 
 1. 이 저장소를 클론합니다:
 ```bash
 git clone [repo-link]
 ```
 
-2. 필요한 Python 라이브러리를 설치합니다:
+2. 가상환경 생성 후, requirements를 설치합니다. 
 ```bash
-poetry install
+cd path_to_project
+python3 -m venv .venv
+source ./.venv/bin/activate
+
+pip install -r requirements.txt
 ```
 
 3. MySQL에서 `airport-ddl.sql` 스크립트를 실행하여 데이터베이스와 테이블을 생성합니다.
+```
+sudo mysql -u root -p
+> INPUT PASSWORD
+
+source [path_to_airport-ddl.sql file]
+// sql ddl file is in Projectdir/MySQL/DDL/.
+```
+
+4. config 폴더의 db_info를 참고하여 mysql 연결 설정, 계정 생성 및 airportdb 사용 권한을 부여합니다.
+
+5. app.py를 실행합니다.
 
 ### 실행
 
 프로젝트를 실행하기 위해 다음 명령어를 사용합니다:
 ```bash
-poetry shell
-poetry run python src/app.py
+//가상환경이 실행된 상태에서
+python3 app.py
 ```
 
 ## 과제 개요

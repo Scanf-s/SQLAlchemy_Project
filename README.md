@@ -18,28 +18,27 @@
 
 ### 프로젝트 구조
 ```text
-├── MySQL
-│     └── DDL
-│         └── airport-ddl.sql
+.
 ├── README.md
-├── pyproject.toml
+├── app.py
+├── config
+│   ├── __init__.py
+│   ├── db.py
+│   └── db_info.py
+├── models
+│   └── airport-ddl.sql
 ├── requirements.txt
-└── src
+├── ui
+│   ├── __init__.py
+│   └── user_interface.py
+└── util
     ├── __init__.py
-    │
-    ├── app.py
-    ├── config
-    │     ├── __init__.py
-    │     ├── db.py
-    │     └── db_info.py
-    ├── ui
-    │     ├── __init__.py
-    │     └── user_interface.py
-    └── util
-        ├── __init__.py
-        ├── database_utils.py
-        ├── dummy_generators.py
-        └── utils.py
+    ├── database_utils.py
+    ├── dummy_generators.py
+    ├── error
+    │   ├── __init__.py
+    │   └── error_handler.py
+    └── utils.py
 ```
 
 ### 설치

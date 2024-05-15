@@ -3,7 +3,6 @@ CREATE DATABASE IF NOT EXISTS airportdb;
 
 USE airportdb;
 
-
 CREATE TABLE IF NOT EXISTS `airport`
 (
     `airport_id` smallint                                                     NOT NULL AUTO_INCREMENT,

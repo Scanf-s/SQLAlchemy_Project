@@ -1,6 +1,8 @@
 import random
 import string
 
+from util.error.error_handler import exception_handler
+
 
 def generate_airline_data(fake, n):
     """
@@ -394,6 +396,7 @@ def generate_passengerdetails_data(fake, n):
     return dummy_data
 
 
+@exception_handler
 def generate_weatherdata_data(fake, n):
     """
     airportdb의 `weatherdata` 테이블에 들어가는 더미데이터를 생성하는 함수
@@ -436,65 +439,63 @@ def generate_weatherdata_data(fake, n):
     return dummy_data
 
 
+@exception_handler
 def generate_data_at_once(fake, type_detail, check_duplicate):
-    try:
-        data_type = type_detail['type']
-        size = type_detail['size']
-        decimal_place = type_detail.get('decimal_place')
+    data_type = type_detail['type']
+    size = type_detail['size']
+    decimal_place = type_detail.get('decimal_place')
 
-        if data_type in ["INTEGER", "SMALLINT", "MEDIUMINT", "TINYINT"]:
-            if type_detail.get('primary') == 'True' or type_detail.get('unique') == 'True':
+    if data_type in ["INTEGER", "SMALLINT", "MEDIUMINT", "TINYINT"]:
+        if type_detail.get('primary') == 'True' or type_detail.get('unique') == 'True':
+            generated_int = random.randint(1, 20001) if data_type != "TINYINT" else random.randint(0, 2)
+            while str(generated_int) in check_duplicate:
                 generated_int = random.randint(1, 20001) if data_type != "TINYINT" else random.randint(0, 2)
-                while str(generated_int) in check_duplicate:
-                    generated_int = random.randint(1, 20001) if data_type != "TINYINT" else random.randint(0, 2)
-                check_duplicate.add(str(generated_int))
-                return generated_int
-            else:
-                # TINYINT가 적용된 column이 0 또는 1만 사용하므로
-                return random.randint(1, 20001) if data_type != "TINYINT" else random.randint(0, 2)
+            check_duplicate.add(str(generated_int))
+            return generated_int
+        else:
+            # TINYINT가 적용된 column이 0 또는 1만 사용하므로
+            return random.randint(1, 20001) if data_type != "TINYINT" else random.randint(0, 2)
 
-        elif data_type in ["CHAR", "VARCHAR", "TEXT"]:
-            if data_type == "CHAR" and size:  # char
-                if type_detail.get('primary') == 'True' or type_detail.get('unique') == 'True':
-                    # 알파벳 문자만으로 생성하면 최대 676개까지의 ROW밖에 생성할 수 없기 때문에
-                    # 다른 문자도 섞어서 해줘야한다.
-                    # 추후 수정 예정입니다. (유니코드 사용해서 사용할 수 있는 문자를 늘려봤는데 오류떠서 알파벳만 사용하는중...)
-                    distinct_chars = ''.join(chr(i) for i in range(32, 127))
+    elif data_type in ["CHAR", "VARCHAR", "TEXT"]:
+        if data_type == "CHAR" and size:  # char
+            if type_detail.get('primary') == 'True' or type_detail.get('unique') == 'True':
+                # 알파벳 문자만으로 생성하면 최대 676개까지의 ROW밖에 생성할 수 없기 때문에
+                # 다른 문자도 섞어서 해줘야한다.
+                # 추후 수정 예정입니다. (유니코드 사용해서 사용할 수 있는 문자를 늘려봤는데 오류떠서 알파벳만 사용하는중...)
+                distinct_chars = ''.join(chr(i) for i in range(32, 127))
+                generated_char = fake.lexify('?' * size, letters=distinct_chars)
+                while generated_char in check_duplicate:
                     generated_char = fake.lexify('?' * size, letters=distinct_chars)
-                    while generated_char in check_duplicate:
-                        generated_char = fake.lexify('?' * size, letters=distinct_chars)
-                    check_duplicate.add(generated_char)
-                    return generated_char
-                else:
-                    return fake.lexify('?' * size, letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ')
-            elif size:  # varchar
-                return fake.text(max_nb_chars=size)
-            else:  # text
-                return fake.text()
-
-        elif data_type in ["DECIMAL"]:
-            if size and decimal_place:
-                max_value = 10 ** (size - decimal_place) - 1
-                return round(random.uniform(0, max_value), decimal_place)
+                check_duplicate.add(generated_char)
+                return generated_char
             else:
-                return round(random.uniform(0, 10000), 2)
+                return fake.lexify('?' * size, letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+        elif size:  # varchar
+            return fake.text(max_nb_chars=size)
+        else:  # text
+            return fake.text()
 
-        elif data_type in ["DATE"]:
-            return fake.date()
+    elif data_type in ["DECIMAL"]:
+        if size and decimal_place:
+            max_value = 10 ** (size - decimal_place) - 1
+            return round(random.uniform(0, max_value), decimal_place)
+        else:
+            return round(random.uniform(0, 10000), 2)
 
-        elif data_type in ["TIME"]:
-            return fake.time()
+    elif data_type in ["DATE"]:
+        return fake.date()
 
-        elif data_type in ["DATETIME"]:
-            return fake.date_time()
+    elif data_type in ["TIME"]:
+        return fake.time()
 
-        elif data_type in ["ENUM"]:
-            if 'enum_values' in type_detail:
-                return random.choice(type_detail['enum_values'])
-            else:
-                return None
+    elif data_type in ["DATETIME"]:
+        return fake.date_time()
 
+    elif data_type in ["ENUM"]:
+        if 'enum_values' in type_detail:
+            return random.choice(type_detail['enum_values'])
         else:
             return None
-    except Exception:
-        raise
+
+    else:
+        return None

@@ -1,4 +1,5 @@
 import sys
+import re
 from util.utils import clean_console, print_menu, table_mapper, user_input
 from util.database_utils import (
     insert_dummy_data,
@@ -6,7 +7,7 @@ from util.database_utils import (
     print_table
 )
 from util.error.error_handler import exception_handler
-from pprint import pprint
+from sqlalchemy.schema import CreateTable, MetaData
 
 
 @exception_handler
@@ -68,15 +69,19 @@ def schema_inspector(engine, inspector, db_info):
     if menu == 1:
         print(f"접속 정보 : {engine.url}")
         print(f"해당 접속에 대한 Schema 리스트 : {inspector.get_schema_names()}")
+
     elif menu == 2:
         print(f"현재 선택된 Schema : {db_info.database_name}")
         print(f"{db_info.database_name}에 속한 테이블 리스트 : {inspector.get_table_names(db_info.database_name)}")
+
     elif menu == 3:
         print(f"뷰 리스트 : {inspector.get_view_names(db_info.database_name)}")
+
     elif menu == 4:
         result = {}
         tables = inspector.get_table_names(db_info.database_name)
         for table in tables:
+            # 아래 코드 리팩터링 필수
             columns = inspector.get_columns(table, db_info.database_name)
             column_dictionary = []
             for column in columns:
@@ -93,9 +98,58 @@ def schema_inspector(engine, inspector, db_info):
         # 나중에 flask로 jsonify 사용하면 json으로 받을 수 있음
         for key, value in result.items():
             print(key, value)
+
     elif menu == 5:
-        pass
+        result = {}
+        for view_name in inspector.get_view_names(db_info.database_name):
+            # 정규식 사용은 CHAT GPT를 활용하였습니다.
+            # 정규식: AS 'alias' 형식에서 alias만 추출
+            re_aliases = re.findall(r'AS\s+`(\w+)`', inspector.get_view_definition(view_name))
+            # 정규식: FROM 구문에서 테이블명 추출
+            re_table_name = re.findall(r'FROM\s+`(\w+)`', inspector.get_view_definition(view_name), re.IGNORECASE)
+            table_name = re_table_name[0]
+
+            columns = inspector.get_columns(table_name, db_info.database_name)
+            column_dictionary = []
+            for column in columns:
+                if column['name'] in re_aliases:
+                    column_details = {
+                        'name': column['name'],
+                        'type': str(column['type']),
+                        'comment': column['comment'],
+                        'default': column['default'],
+                        'nullable': column['nullable'],
+                        'autoincrement': column.get('autoincrement')
+                    }
+                    column_dictionary.append(column_details)
+            result[view_name] = column_dictionary
+
+        for key, value in result.items():
+            print(key, value)
+
     elif menu == 6:
-        pass
+        result = {}
+        table_name = input("테이블 명 입력 : ")
+        if table_name in table_mapper().keys():
+            columns = inspector.get_columns(table_name, db_info.database_name)
+            column_dictionary = []
+            for column in columns:
+                column_details = {
+                    'name': column['name'],
+                    'type': str(column['type']),
+                    'comment': column['comment'],
+                    'default': column['default'],
+                    'nullable': column['nullable'],
+                    'autoincrement': column.get('autoincrement')
+                }
+                column_dictionary.append(column_details)
+            result[table_name] = column_dictionary
+            print(result)
+        else:
+            print("올바른 테이블명을 입력해주세요.")
     elif menu == 7:
-        pass
+        # https://stackoverflow.com/questions/64677402/get-ddl-from-existing-databases-sqlalchemy
+        meta = MetaData()
+        meta.reflect(bind=engine)
+        for table in meta.sorted_tables:
+            print(CreateTable(table).compile(engine))

@@ -1,17 +1,22 @@
 import sys
 import re
+from faker import Faker
+from config.db_info import DatabaseInfo
+from sqlalchemy import Inspector
 from util.utils import clean_console, print_menu, table_mapper, user_input
 from util.database_utils import (
     insert_dummy_data,
     create_all_dummy,
-    print_table
+    print_table,
+    get_table_metadata,
+    is_column_primary_key
 )
 from util.error.error_handler import exception_handler
 from sqlalchemy.schema import CreateTable, MetaData
 
 
 @exception_handler
-def run(engine, fake, inspector, db_info):
+def run(engine, fake: Faker, inspector: Inspector, db_info: DatabaseInfo):
     while True:
         clean_console()
         print_menu()
@@ -55,7 +60,7 @@ def run(engine, fake, inspector, db_info):
             print("다시 입력해 주세요.")
 
 
-def schema_inspector(engine, inspector, db_info):
+def schema_inspector(engine, inspector: Inspector, db_info: DatabaseInfo):
     print("Database Management Menu")
     print("1. 현재 접속한 Database의 schema 목록")
     print("2. 현재 선택한 Schema에 속한 테이블 목록")
@@ -88,6 +93,7 @@ def schema_inspector(engine, inspector, db_info):
                 column_details = {
                     'name': column['name'],
                     'type': str(column['type']),
+                    'primary': is_column_primary_key(engine, table, column['name']),
                     'comment': column['comment'],
                     'default': column['default'],
                     'nullable': column['nullable'],
@@ -116,6 +122,7 @@ def schema_inspector(engine, inspector, db_info):
                     column_details = {
                         'name': column['name'],
                         'type': str(column['type']),
+                        'primary': is_column_primary_key(engine, table_name, column['name']),
                         'comment': column['comment'],
                         'default': column['default'],
                         'nullable': column['nullable'],
@@ -137,6 +144,7 @@ def schema_inspector(engine, inspector, db_info):
                 column_details = {
                     'name': column['name'],
                     'type': str(column['type']),
+                    'primary': is_column_primary_key(engine, table_name, column['name']),
                     'comment': column['comment'],
                     'default': column['default'],
                     'nullable': column['nullable'],

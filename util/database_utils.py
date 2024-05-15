@@ -365,3 +365,10 @@ def create_all_dummy(engine, fake, n, mode):
         all_dummy_data[meta_table.name] = generated_data
 
     insert_into_all_tables(engine, all_dummy_data, mode)
+
+
+def is_column_primary_key(engine, table_name: str, col_name: str):
+    meta_table = get_table_metadata(engine, table_name)
+    for column in meta_table.columns:
+        if col_name == str(column.name):
+            return column.primary_key

@@ -1,7 +1,7 @@
 # 더미데이터 생성 API
 
-이 프로젝트는 MySQL 데이터베이스에 대한 더미 데이터 생성을 위한 스크립트를 개발하는 과정을 담고 있습니다. 
-각 주차별 과제를 통해 점진적으로 기능을 확장해 나가며, Python과 SQLAlchemy, Faker 같은 라이브러리를 활용합니다.
+이 프로젝트는 MySQL 데이터베이스에 대한 더미 데이터 생성을 위한 파이썬 프로그램 입니다.
+각 주차마다 과제수행을 통해 점진적으로 기능을 개선 및 확장해 나갈 예정입니다.
 
 ### 개발 환경 및 사용 기술
 ![](https://img.shields.io/badge/Ubuntu-E95420?style=flat&logo=Ubuntu&logoColor=white")
@@ -44,12 +44,12 @@
 ### 설치
 #### !!!!추후 Docker로 변경 예정 입니다!!!!
 
-1. 이 저장소를 클론합니다:
+#### 1. 이 저장소를 클론합니다:
 ```bash
 git clone [repo-link]
 ```
 
-2. 가상환경 생성 후, requirements를 설치합니다. 
+#### 2. 가상환경 생성 후, requirements를 설치합니다. 
 ```bash
 cd path_to_project
 python3 -m venv .venv
@@ -58,7 +58,7 @@ source ./.venv/bin/activate
 pip install -r requirements.txt
 ```
 
-3. MySQL에서 `airport-ddl.sql` 스크립트를 실행하여 데이터베이스와 테이블을 생성합니다.
+#### 3. MySQL에서 `airport-ddl.sql` 스크립트를 실행하여 데이터베이스와 테이블을 생성합니다.
 ```
 sudo mysql -u root -p
 > INPUT PASSWORD
@@ -67,9 +67,9 @@ source [path_to_airport-ddl.sql file]
 // sql ddl file is in Projectdir/src/models/.
 ```
 
-4. config 폴더의 db_info를 참고하여 mysql 연결 설정, 계정 생성 및 airportdb 사용 권한을 부여합니다.
+#### 4. config 폴더의 db_info를 참고하여 mysql 연결 설정, 계정 생성 및 airportdb 사용 권한을 부여합니다.
 
-5. app.py를 실행합니다.
+#### 5. app.py를 실행합니다.
 
 ### 실행
 
@@ -99,7 +99,7 @@ python3 app.py
 
 #### 3주차 과제: MySQL DB 관리 도구 개발
 
-- **기간**: 이어지는 1주
+- **기간**: 5월 8일 ~ 5월 20일
 - **목표**: 데이터베이스 관리 기능을 자동화하는 도구 개발
 - **필수 구현 요건**:
   - 여러 DB 접속 정보 관리

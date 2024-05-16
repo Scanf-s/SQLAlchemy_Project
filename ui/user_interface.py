@@ -3,7 +3,7 @@ import sys
 from faker import Faker
 from sqlalchemy import Inspector
 
-from config.db_info import DatabaseInfo
+from config.DatabaseInfo import DatabaseInfo
 from util.database_utils import (
     insert_dummy_data,
     create_all_dummy,

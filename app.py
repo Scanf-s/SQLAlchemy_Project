@@ -3,7 +3,7 @@ from faker_airtravel import AirTravelProvider
 from sqlalchemy import inspect
 
 from config.db import create_engine_connection, create_database_connection
-from config.db_info import DatabaseInfo
+from config.DatabaseInfo import DatabaseInfo
 from ui.user_interface import main_user_interface
 from util.database_utils import execute_sql_file
 

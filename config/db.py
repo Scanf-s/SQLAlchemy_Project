@@ -1,10 +1,11 @@
 from sqlalchemy import create_engine
 
 from util.error.error_handler import exception_handler
+from DatabaseInfo import DatabaseInfo
 
 
 @exception_handler
-def create_engine_connection(db_info):
+def create_engine_connection(db_info: DatabaseInfo):
     """
     MySQL 초기화를 위한 연결 엔진을 생성한다.
     연결에 실패할 경우, 에러 메시지를 출력한다.
@@ -23,7 +24,7 @@ def create_engine_connection(db_info):
 
 
 @exception_handler
-def create_database_connection(db_info):
+def create_database_connection(db_info: DatabaseInfo):
     """
     MySQL 데이터베이스에 연결하기 위한 데이터베이스 엔진을 생성한다.
     이 함수는 SQLAlchemy의 create_engine 함수를 사용하여 MySQL 데이터베이스에 연결하기 위한 엔진을 생성한다.

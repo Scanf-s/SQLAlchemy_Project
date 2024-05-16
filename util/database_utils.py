@@ -3,7 +3,7 @@ import re
 from sqlalchemy import delete, text, Inspector
 from sqlalchemy.schema import CreateTable, MetaData
 
-from config.db_info import DatabaseInfo
+from config.DatabaseInfo import DatabaseInfo
 from util.dummy_generators import generate_data_at_once
 from util.error.error_handler import exception_handler
 from util.utils import table_mapper

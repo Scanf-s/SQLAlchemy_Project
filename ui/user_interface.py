@@ -59,6 +59,8 @@ def run(engine, fake: Faker, inspector: Inspector, db_info: DatabaseInfo):
         else:
             print("다시 입력해 주세요.")
 
+        input("엔터를 누르면 초기화면으로 되돌아갑니다...")
+
 
 def schema_inspector(engine, inspector: Inspector, db_info: DatabaseInfo):
     print("Database Management Menu")
@@ -159,5 +161,9 @@ def schema_inspector(engine, inspector: Inspector, db_info: DatabaseInfo):
         # https://stackoverflow.com/questions/64677402/get-ddl-from-existing-databases-sqlalchemy
         meta = MetaData()
         meta.reflect(bind=engine)
-        for table in meta.sorted_tables:
-            print(CreateTable(table).compile(engine))
+        table_name = input('테이블 이름을 정확히 입력해주세요.')
+        if table_name in table_mapper().keys():
+            for table in meta.sorted_tables:
+                if table.name == table_name:
+                    print(CreateTable(table).compile(engine))
+                    break

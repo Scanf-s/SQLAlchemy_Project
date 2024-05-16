@@ -11,7 +11,7 @@ def create_engine_connection(db_info):
     :raises Exception: 연결 생성 중 오류가 발생한 경우 예외를 발생시킨다.
     """
     engine_connection_string = (
-        f'{db_info.database}://{db_info.username}:{db_info.password}@'
+        f'{db_info.database}://root:123123@'
         f'{db_info.address}:{db_info.port}'
     )
     engine = create_engine(

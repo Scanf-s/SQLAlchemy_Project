@@ -5,7 +5,7 @@ class DatabaseInfo:
         self._USERNAME = 'test'
         self._PASSWORD = '123123'
         # Change address from 127.0.0.1 to db (compose.yaml)
-        self._ADDRESS = 'localhost'
+        self._ADDRESS = '127.0.0.1'
         self._PORT = 3306
         self._DATABASE_NAME = 'airportdb'
         self._CHARSET = 'utf8mb4'

@@ -6,6 +6,7 @@ from util.dummy_generators import generate_data_at_once
 from util.error.error_handler import exception_handler
 
 
+@exception_handler
 def execute_sql_file(engine, file_path):
     """
     데이터베이스가 존재하지 않은 경우, engine connection을 이용해서
@@ -25,6 +26,7 @@ def execute_sql_file(engine, file_path):
                 connection.execute(text(command))  # string type command를 text로 변환해서 쿼리 실행
 
 
+@exception_handler
 def print_table(engine, table_name):
     """
     SQLAlchemy 엔진 객체와 테이블 이름을 사용하여 SQL 쿼리를 실행하고,
@@ -35,24 +37,19 @@ def print_table(engine, table_name):
     :param table_name: 조회할 데이터베이스 테이블의 이름입니다.
     :raises Exception: 함수 호출 시, Exception을 처리해야 한다.
     """
-    try:
-        with engine.connect() as connection:
-            sql = text("SELECT * FROM " + table_name)
-            result = connection.execute(sql)
-            conv_result = result.mappings().all()
-            print(f'\n<<<<<<<<<<<<<<<<<<<<<<<<<<< {table_name} 더미데이터 내역 >>>>>>>>>>>>>>>>>>>>>>>>>>>>\n')
-            for dic in conv_result:
-                print(dic)
-    except Exception as e:
-        raise
+    with engine.connect() as connection:
+        sql = text("SELECT * FROM " + table_name)
+        result = connection.execute(sql)
+        conv_result = result.mappings().all()
+        print(f'\n<<<<<<<<<<<<<<<<<<<<<<<<<<< {table_name} 더미데이터 내역 >>>>>>>>>>>>>>>>>>>>>>>>>>>>\n')
+        for dic in conv_result:
+            print(dic)
 
 
 @exception_handler
 def delete_current_data(connection, table):
-
     """
     SQLAlchemy를 통해 table을 삭제해주는 함수.
-
     :param connection: SQLAlchemy connect (with engine.connect() as connection:)
     :param table: 삭제할 테이블 metadata (not table name)
     :return

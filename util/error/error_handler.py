@@ -1,4 +1,5 @@
 import functools
+import traceback
 from sqlalchemy.exc import IntegrityError
 
 
@@ -8,12 +9,12 @@ def exception_handler(func):
         try:
             return func(*args, **kwargs)
         except IntegrityError as ite:
-            print(f"SQLAlchemy Integrity Error occured: {ite}")
+            print(traceback.format_exc())
         except KeyboardInterrupt as ki:
-            print(f"User interrupt : {ki}")
+            print(traceback.format_exc())
         except ValueError as ve:
-            print(f"ValueError occurred: {ve}")
+            print(traceback.format_exc())
         except Exception as e:
-            print(f"An error occurred: {e}")
+            print(traceback.format_exc())
 
     return wrapper

@@ -21,6 +21,7 @@ def create_engine_connection(db_info):
     return engine
 
 
+@exception_handler
 def create_database_connection(db_info):
     """
     MySQL 데이터베이스에 연결하기 위한 데이터베이스 엔진을 생성한다.

@@ -1,5 +1,6 @@
 import functools
 import traceback
+
 from sqlalchemy.exc import IntegrityError
 
 

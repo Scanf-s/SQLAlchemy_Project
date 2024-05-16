@@ -1,5 +1,5 @@
-import platform
 import os
+import platform
 
 from util.dummy_generators import (
     generate_airline_data,

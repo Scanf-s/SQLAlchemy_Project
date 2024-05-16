@@ -1,9 +1,12 @@
 import re
 
-from sqlalchemy import MetaData, delete, text
+from sqlalchemy import delete, text, Inspector
+from sqlalchemy.schema import CreateTable, MetaData
 
+from config.db_info import DatabaseInfo
 from util.dummy_generators import generate_data_at_once
 from util.error.error_handler import exception_handler
+from util.utils import table_mapper
 
 
 @exception_handler
@@ -364,8 +367,79 @@ def create_all_dummy(engine, fake, n, mode):
     insert_into_all_tables(engine, all_dummy_data, mode)
 
 
+@exception_handler
 def is_column_primary_key(engine, table_name: str, col_name: str):
     meta_table = get_table_metadata(engine, table_name)
     for column in meta_table.columns:
         if col_name == str(column.name):
             return column.primary_key
+    return False
+
+
+@exception_handler
+def make_column_details_dictionary(engine, inspector, table_name, db_info):
+    temp_dict = {}
+    columns = inspector.get_columns(table_name, db_info.database_name)
+    column_dictionary_list = []
+    for column in columns:
+        column_details = {
+            'name': column['name'],
+            'type': str(column['type']),
+            'primary': is_column_primary_key(engine, table_name, column['name']),
+            'comment': column['comment'],
+            'default': column['default'],
+            'nullable': column['nullable'],
+            'autoincrement': column.get('autoincrement')
+        }
+        column_dictionary_list.append(column_details)
+    temp_dict[table_name] = column_dictionary_list
+    return temp_dict
+
+
+@exception_handler
+def get_ddl_script(engine):
+    # https://stackoverflow.com/questions/64677402/get-ddl-from-existing-databases-sqlalchemy
+    metadata = MetaData()
+    metadata.reflect(bind=engine)
+    table_name = input('테이블 명 입력 : ')
+    if table_name in table_mapper().keys():
+        for table in metadata.sorted_tables:
+            if table.name == table_name:
+                print(CreateTable(table).compile(engine))
+                break
+
+
+@exception_handler
+def get_view_list_details(engine, inspector: Inspector, db_info: DatabaseInfo):
+    result = {}
+    for view_name in inspector.get_view_names(db_info.database_name):
+        view_definition = inspector.get_view_definition(view_name)
+
+        # view columns
+        re_aliases = re.findall(r'AS\s+`(\w+)`', view_definition)
+
+        # real table name
+        re_table_name = re.findall(r'FROM\s+`(\w+)`', view_definition, re.IGNORECASE)
+
+        if not re_table_name:
+            continue
+
+        table_name = re_table_name[0]
+        columns = inspector.get_columns(table_name, db_info.database_name)
+
+        column_dictionary_list = []
+        for column in columns:
+            if column['name'] in re_aliases:
+                column_details = {
+                    'name': column['name'],
+                    'type': str(column['type']),
+                    'primary': is_column_primary_key(engine, table_name, column['name']),
+                    'comment': column['comment'],
+                    'default': column['default'],
+                    'nullable': column['nullable'],
+                    'autoincrement': column.get('autoincrement')
+                }
+                column_dictionary_list.append(column_details)
+        result[view_name] = column_dictionary_list
+
+    return result

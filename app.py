@@ -1,11 +1,11 @@
 from faker import Faker
 from faker_airtravel import AirTravelProvider
 from sqlalchemy import inspect
-from ui.user_interface import run
-from config.db import create_engine_connection, create_database_connection
-from util.database_utils import execute_sql_file
-from config.db_info import DatabaseInfo
 
+from config.db import create_engine_connection, create_database_connection
+from config.db_info import DatabaseInfo
+from ui.user_interface import main_user_interface
+from util.database_utils import execute_sql_file
 
 if __name__ == "__main__":
     # get dbinfo
@@ -24,4 +24,4 @@ if __name__ == "__main__":
     fake.add_provider(AirTravelProvider)
 
     # RUN MAIN CODE
-    run(db_connection_engine, fake, inspector, db_info)
+    main_user_interface(db_connection_engine, fake, inspector, db_info)

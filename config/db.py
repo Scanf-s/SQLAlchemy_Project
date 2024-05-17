@@ -1,17 +1,19 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, Engine
 
 from util.error.error_handler import exception_handler
 from .database_info_class import DatabaseInfo
 
 
 @exception_handler
-def create_engine_connection(db_info: DatabaseInfo):
+def create_engine_connection(db_info: DatabaseInfo) -> Engine:
     """
-    MySQL 초기화를 위한 연결 엔진을 생성한다.
-    연결에 실패할 경우, 에러 메시지를 출력한다.
-    :return: 성공적으로 생성된 연결 엔진 객체를 반환한다.
-    :raises Exception: 연결 생성 중 오류가 발생한 경우 예외를 발생시킨다.
+    Creates a connection engine for MySQL initialization.
+
+    @param db_info: DatabaseInfo object containing the database connection information
+    @return: Successfully created SQLAlchemy engine object
+    @raise Exception: Raises an exception if there is an error in creating the connection
     """
+
     engine_connection_string = (
         f'{db_info.database}://root:123123@'
         f'{db_info.address}:{db_info.port}'
@@ -24,13 +26,16 @@ def create_engine_connection(db_info: DatabaseInfo):
 
 
 @exception_handler
-def create_database_connection(db_info: DatabaseInfo):
+def create_database_connection(db_info: DatabaseInfo) -> Engine:
     """
-    MySQL 데이터베이스에 연결하기 위한 데이터베이스 엔진을 생성한다.
-    이 함수는 SQLAlchemy의 create_engine 함수를 사용하여 MySQL 데이터베이스에 연결하기 위한 엔진을 생성한다.
-    연결에 실패할 경우, 에러 메시지를 출력한다.
-    :return: 성공적으로 생성된 연결 엔진 객체를 반환한다.
-    :raises Exception: 연결 생성 중 오류가 발생한 경우 예외를 발생시킨다.
+    Creates a connection engine for connecting to a MySQL database.
+
+    This function uses SQLAlchemy's create_engine function to create an engine
+    for connecting to a MySQL database. If the connection fails, it prints an error message.
+
+    @param db_info: DatabaseInfo object containing the database connection information
+    @return: Successfully created SQLAlchemy engine object
+    @raise Exception: Raises an exception if there is an error in creating the connection
     """
     database_connection_string = (
         f'{db_info.database}://{db_info.username}:{db_info.password}@'

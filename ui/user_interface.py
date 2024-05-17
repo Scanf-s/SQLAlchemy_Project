@@ -1,6 +1,7 @@
 import sys
 
 from faker import Faker
+from sqlalchemy import Engine
 from sqlalchemy import Inspector
 
 from config.database_info_class import DatabaseInfo
@@ -16,7 +17,17 @@ from util.utils import clean_console, print_menu, table_mapper, user_input
 
 
 @exception_handler
-def main_user_interface(engine, fake: Faker, inspector: Inspector, db_info: DatabaseInfo):
+def main_user_interface(engine: Engine, fake: Faker, inspector: Inspector, db_info: DatabaseInfo) -> None:
+    """
+    Main user interface for the dummy data generation and database management program.
+
+    @param engine: SQLAlchemy engine object connected to the target database
+    @param fake: Faker object used to generate fake data
+    @param inspector: SQLAlchemy Inspector object for reflecting database metadata
+    @param db_info: DatabaseInfo object containing the database connection information
+    @return: None
+    """
+
     while True:
         clean_console()
         print_menu()
@@ -62,7 +73,16 @@ def main_user_interface(engine, fake: Faker, inspector: Inspector, db_info: Data
         input("엔터를 누르면 초기화면으로 되돌아갑니다...")
 
 
-def schema_inspector_user_interface(engine, inspector: Inspector, db_info: DatabaseInfo):
+def schema_inspector_user_interface(engine: Engine, inspector: Inspector, db_info: DatabaseInfo) -> None:
+    """
+    Provides a user interface for database schema inspection and management.
+
+    @param engine: SQLAlchemy engine object connected to the target database
+    @param inspector: SQLAlchemy Inspector object for reflecting database metadata
+    @param db_info: DatabaseInfo object containing the database connection information
+    @return: None
+    """
+
     print("Database Management Menu")
     print("1. 현재 접속한 Database의 schema 목록")
     print("2. 현재 선택한 Schema에 속한 테이블 목록")

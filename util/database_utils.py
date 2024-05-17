@@ -3,7 +3,7 @@ import re
 from sqlalchemy import delete, text, Inspector
 from sqlalchemy.schema import CreateTable, MetaData
 
-from config.DatabaseInfo import DatabaseInfo
+from config.database_info_class import DatabaseInfo
 from util.dummy_generators import generate_data_at_once
 from util.error.error_handler import exception_handler
 from util.utils import table_mapper
@@ -43,7 +43,12 @@ def print_table(engine, table_name):
     with engine.connect() as connection:
         sql = text("SELECT * FROM " + table_name)
         result = connection.execute(sql)
+        # execute() -> returns CursorResult that a sequence of Row objects.
         conv_result = result.mappings().all()
+        # mappings() -> returns MappingResult
+        # MappingResult.all() -> returns sequence[Rowmapping] array
+        # Rowmapping -> dictionary
+        # 따라서 conv_result에는 dictionary가 담기고, for문으로 돌릴 수 있음
         print(f'\n<<<<<<<<<<<<<<<<<<<<<<<<<<< {table_name} 더미데이터 내역 >>>>>>>>>>>>>>>>>>>>>>>>>>>>\n')
         for dic in conv_result:
             print(dic)
@@ -68,6 +73,7 @@ def get_table_metadata(engine, table_name):
     """
     MySQL Database에서 table_name과 일치하는 테이블을 찾고,
     해당 테이블에 해당하는 metadata를 반환하는 함수.
+    table metadata = table을 구성하는 정보가 담긴 데이터를 table metadata라고 함
     :param engine: SQLAlchemy 엔진 객체
     :param table_name: 테이블 이름
     :return table: 테이블 metadata를 반환한다
@@ -80,6 +86,10 @@ def get_table_metadata(engine, table_name):
 
 @exception_handler
 def get_all_tables_from_database(engine):
+    """
+    MySQL 데이터베이스의 DatabaseInfo.database_name 스키마에 존재하는
+    모든 테이블 메타데이터들을 가져와주는 함수
+    """
     metadata = MetaData()
     metadata.reflect(bind=engine)
     all_tables = list(metadata.tables.keys())
@@ -87,18 +97,25 @@ def get_all_tables_from_database(engine):
 
 
 @exception_handler
-def insert_into_all_tables(engine, dummy_data, mode):
+def insert_into_all_tables(engine, dummy_data: dict, mode: str):
+    """
+    dummy_data에 모든 테이블에 넣을 데이터 dictionary를 전달받아서,
+    sqlalchemy 함수를 이용해서 dictionary value들을 자동으로 넣어버리는 작업
+    """
     with engine.connect() as connection:
         for table_name in dummy_data.keys():
-            meta_table = get_table_metadata(engine, table_name)
+            table_metadata = get_table_metadata(engine, table_name)
             if mode == 'y' or mode == 'Y':
-                delete_current_data(connection, meta_table)
-            connection.execute(meta_table.insert(), dummy_data[table_name])
+                delete_current_data(connection, table_metadata)
+            connection.execute(table_metadata.insert(), dummy_data[table_name])
             connection.commit()
 
 
 @exception_handler
-def insert_dummy_data(engine, table_name, dummy_data, mode):
+def insert_dummy_data(engine, table_name: str, dummy_data: list, mode: str):
+    """
+    하나씩 구체적으로 생성된 더미데이터를 원하는 테이블에 삽입해주는 함수
+    """
     # DB에서 테이블 원형 가져오기
     table = get_table_metadata(engine, table_name)
 
@@ -349,22 +366,26 @@ def create_all_dummy_helper(fake, table, n):
         for column in table.columns:
             if str(column.autoincrement) == "True":
                 continue
-            type_detail = get_column_type_detail(table, column)
-            data_row[column.name] = generate_data_at_once(fake, type_detail, check_duplicate)
-        dummy_data.append(data_row)
+            type_detail = get_column_type_detail(table, column)  # 해당 column의 상세정보를 dictionary 형태로 가져와줌
+            data_row[column.name] = generate_data_at_once(fake, type_detail, check_duplicate)  # Row 하나씩 더미데이터 생성해줌
+        dummy_data.append(data_row)  # 리스트에 저장
 
     return dummy_data
 
 
 def create_all_dummy(engine, fake, n, mode):
+    """
+    모든 테이블의 메타데이터를 get_all_tables_from_database()를 통해 가져온 뒤,
+    dictionary에 모든 더미데이터를 저장해서 insert_into_all_tables()에 넘겨주는 작업을 수행하는 함수
+    """
     table_list = get_all_tables_from_database(engine)
     all_dummy_data = {}
     for table in table_list:
-        meta_table = get_table_metadata(engine, table)
-        generated_data = create_all_dummy_helper(fake, meta_table, n)
-        all_dummy_data[meta_table.name] = generated_data
+        # 테이블 메타데이터마다 더미데이터 n개 생성
+        generated_data = create_all_dummy_helper(fake, table, n)  # 데이터 리스트를 받아서
+        all_dummy_data[table.name] = generated_data  # 테이블이름을 key로 가지는 dictionary에 행마다 넣을 데이터 리스트들 value로 저장
 
-    insert_into_all_tables(engine, all_dummy_data, mode)
+    insert_into_all_tables(engine, all_dummy_data, mode)  # 싹다 삽입
 
 
 @exception_handler

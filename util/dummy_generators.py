@@ -1,5 +1,7 @@
 import random
 import string
+from typing import Dict, Any, Set
+from faker import Faker
 
 from util.error.error_handler import exception_handler
 
@@ -558,7 +560,7 @@ def generate_weatherdata_data(fake, n):
 
 
 @exception_handler
-def generate_data_at_once(fake, type_detail, check_duplicate):
+def generate_data_at_once(fake: Faker, type_detail: Dict[str, Any], check_str_duplicate: Set[str], check_num_duplicate: Set[int]) -> Any:
     data_type = type_detail['type']
     size = type_detail['size']
     decimal_place = type_detail.get('decimal_place')
@@ -566,32 +568,33 @@ def generate_data_at_once(fake, type_detail, check_duplicate):
     if data_type in ["INTEGER", "SMALLINT", "MEDIUMINT", "TINYINT"]:
         if type_detail.get('primary') == 'True' or type_detail.get('unique') == 'True':
             generated_int = random.randint(1, 20001) if data_type != "TINYINT" else random.randint(0, 2)
-            while str(generated_int) in check_duplicate:
+            while generated_int in check_num_duplicate:
                 generated_int = random.randint(1, 20001) if data_type != "TINYINT" else random.randint(0, 2)
-            check_duplicate.add(str(generated_int))
+            check_num_duplicate.add(generated_int)
             return generated_int
         else:
             # TINYINT가 적용된 column이 0 또는 1만 사용하므로
             return random.randint(1, 20001) if data_type != "TINYINT" else random.randint(0, 2)
 
     elif data_type in ["CHAR", "VARCHAR", "TEXT"]:
+        distinct_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(){}?~'
         if data_type == "CHAR" and size:  # char
             if type_detail.get('primary') == 'True' or type_detail.get('unique') == 'True':
                 # 알파벳 문자만으로 생성하면 최대 676개까지의 ROW밖에 생성할 수 없기 때문에
                 # 다른 문자도 섞어서 해줘야한다.
                 # 추후 수정 예정입니다. (유니코드 사용해서 사용할 수 있는 문자를 늘려봤는데 오류떠서 알파벳만 사용하는중...)
-                distinct_chars = ''.join(chr(i) for i in range(32, 127))
                 generated_char = fake.lexify('?' * size, letters=distinct_chars)
-                while generated_char in check_duplicate:
+                while generated_char in check_str_duplicate:
                     generated_char = fake.lexify('?' * size, letters=distinct_chars)
-                check_duplicate.add(generated_char)
+                check_str_duplicate.add(str(generated_char))
                 return generated_char
             else:
-                return fake.lexify('?' * size, letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+                return fake.lexify('?' * size, letters='distinct_chars')
         elif size:  # varchar
             return fake.text(max_nb_chars=size)
         else:  # text
             return fake.text()
+
 
     elif data_type in ["DECIMAL"]:
         if size and decimal_place:

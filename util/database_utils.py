@@ -1,5 +1,5 @@
 import re
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Union
 
 from faker import Faker
 from sqlalchemy import delete, text, Inspector
@@ -63,7 +63,7 @@ def delete_current_data(connection: Connection, table: Table) -> None:
 
 
 @exception_handler
-def get_table_metadata(engine: Engine, table_name: str) -> Table:
+def get_table_metadata(engine: Engine, table_name: Union[str, Table]) -> Table:
     """
     Retrieves metadata for the specified table from the MySQL database.
 
@@ -197,15 +197,16 @@ def create_all_dummy_helper(fake: Faker, table: Table, n: int) -> List[Dict]:
     @return: List of dictionaries, each containing dummy data for a table row
     """
     dummy_data = []
+    check_str_duplicate = set()
+    check_num_duplicate = set()
     for i in range(n):
         # n개의 더미 데이터 생성
-        check_duplicate = set()
         data_row = {}
         for column in table.columns:
             if str(column.autoincrement) == "True":
                 continue
             type_detail = get_column_type_detail(table, column)  # 해당 column의 상세정보를 dictionary 형태로 가져와줌
-            data_row[column.name] = generate_data_at_once(fake, type_detail, check_duplicate)  # Row 하나씩 더미데이터 생성해줌
+            data_row[column.name] = generate_data_at_once(fake, type_detail, check_str_duplicate, check_num_duplicate)  # Row 하나씩 더미데이터 생성해줌
         dummy_data.append(data_row)  # 리스트에 저장
 
     return dummy_data

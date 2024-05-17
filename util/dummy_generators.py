@@ -22,8 +22,14 @@ def generate_airline_data(fake, n):
         airline_name = fake.airline()
         base_airport = fake.random_int(min=0, max=32000)
 
-        dummy_data.append((airline_iata, airline_name, base_airport))
-
+    #    dummy_data.append((airline_iata, airline_name, base_airport))
+        dummy_data.append(
+            {
+                "iata": airline_iata,
+                "airlinename": airline_name,
+                "base_airport": base_airport
+            }
+        )
     return dummy_data
 
 
@@ -42,7 +48,13 @@ def generate_airplane_data(fake, n):
         type_id = fake.random_int(min=1, max=20001)
         airline_id = fake.random_int(min=1, max=32767)
 
-        dummy_data.append((capacity, type_id, airline_id))
+        dummy_data.append(
+            {
+                "iata": capacity,
+                "icao": type_id,
+                "name": airline_id
+            }
+        )
 
     return dummy_data
 
@@ -60,7 +72,12 @@ def generate_airplane_type_data(fake, n):
         identifier = fake.bothify('??##', letters=string.ascii_uppercase)
         description = fake.text(max_nb_chars=100)
 
-        dummy_data.append((identifier, description))
+        dummy_data.append(
+            {
+                "identifier": identifier,
+                "description": description
+            }
+        )
 
     return dummy_data
 
@@ -83,7 +100,13 @@ def generate_airport_data(fake, n):
         check_duplicate_icao.add(airport_icao)
         airport_name = fake.airport_name()
 
-        dummy_data.append((airport_iata, airport_icao, airport_name))
+        dummy_data.append(
+            {
+                "iata": airport_iata,
+                "icao": airport_icao,
+                "name": airport_name
+            }
+        )
 
     return dummy_data
 
@@ -109,7 +132,16 @@ def generate_airport_geo_data(fake, n):
         latitude = fake.latitude()
         longitude = fake.longitude()
 
-        dummy_data.append((airport_id, name, city, country, latitude, longitude))
+        dummy_data.append(
+            {
+                "airport_id": airport_id,
+                "name": name,
+                "city": city,
+                "country": country,
+                "latitude": latitude,
+                "longitude": longitude,
+            }
+        )
 
     return dummy_data
 
@@ -131,7 +163,12 @@ def generate_airport_reachable_data(fake, n):
         check_duplicate_airport_id.add(airport_id)
         hops = fake.random_int(1, 100) if random.choice([True, False]) else None
 
-        dummy_data.append((airport_id, hops))
+        dummy_data.append(
+            {
+                "airport_id": airport_id,
+                "hops": hops
+            }
+        )
 
     return dummy_data
 
@@ -161,7 +198,14 @@ def generate_booking_data(fake, n):
         passenger_id = fake.random_int(min=10000, max=30001)
         price = fake.pydecimal(right_digits=2, left_digits=8, positive=True, min_value=0.99, max_value=10000)
 
-        dummy_data.append((flight_id, seat, passenger_id, float(price)))
+        dummy_data.append(
+            {
+                "flight_id": flight_id,
+                "seat": seat,
+                "passenger_id": passenger_id,
+                "price": float(price),
+            }
+        )
 
     return dummy_data
 
@@ -211,8 +255,24 @@ def generate_employee_data(fake, n):
 
         password = fake.password(special_chars=True, length=32) if username is not None else None
 
-        dummy_data.append((firstname, lastname, birthdate, sex, street, city, zipcode, country, emailaddress,
-                           telephoneno, salary, department, username, password))
+        dummy_data.append(
+            {
+                "firstname": firstname,
+                "lastname": lastname,
+                "birthdate": birthdate,
+                "sex": sex,
+                "street": street,
+                "city": city,
+                "zip": zipcode,
+                "country": country,
+                "emailaddress": emailaddress,
+                "telephoneno": telephoneno,
+                "salary": salary,
+                "department": department,
+                "username": username,
+                "password": password
+            }
+        )
 
     return dummy_data
 
@@ -240,7 +300,17 @@ def generate_flight_data(fake, n):
         airline_id = random.randint(1, 20001)
         airplane_id = random.randint(1, 20001)
 
-        dummy_data.append((flightno, _from, _to, departure_time, arrival_time, airline_id, airplane_id))
+        dummy_data.append(
+            {
+                "flightno": flightno,
+                "from": _from,
+                "to": _to,
+                "departure": departure_time,
+                "arrival": arrival_time,
+                "airline_id": airline_id,
+                "airplane_id": airplane_id
+            }
+        )
 
     return dummy_data
 
@@ -281,24 +351,27 @@ def generate_flight_log_data(fake, n):
         comment = fake.text(max_nb_chars=200) if random.choice([True, False]) else None
 
         dummy_data.append(
-            (log_date,
-             user,
-             flight_id,
-             flightno_old,
-             flightno_new,
-             from_old,
-             to_old,
-             from_new,
-             to_new,
-             departure_old,
-             arrival_old,
-             departure_new,
-             arrival_new,
-             airplane_id_old,
-             airplane_id_new,
-             airline_id_old,
-             airline_id_new,
-             comment))
+            {
+                "log_date": log_date,
+                "user": user,
+                "flight_id": flight_id,
+                "flightno_old": flightno_old,
+                "flightno_new": flightno_new,
+                "from_old": from_old,
+                "to_old": to_old,
+                "from_new": from_new,
+                "to_new": to_new,
+                "departure_old": departure_old,
+                "arrival_old": arrival_old,
+                "departure_new": departure_new,
+                "arrival_new": arrival_new,
+                "airplane_id_old": airplane_id_old,
+                "airplane_id_new": airplane_id_new,
+                "airline_id_old": airline_id_old,
+                "airline_id_new": airline_id_new,
+                "comment": comment
+            }
+        )
 
     return dummy_data
 
@@ -334,9 +407,24 @@ def generate_flightschedule_data(fake, n):
         friday = 1 if random.choice([True, False]) else 0
         saturday = 1 if random.choice([True, False]) else 0
         sunday = 1 if random.choice([True, False]) else 0
-        dummy_data.append((
-            flightno, _from, _to, departure_time, arrival_time, airline_id, monday, tuesday,
-            wednesday, thursday, friday, saturday, sunday))
+
+        dummy_data.append(
+            {
+                "flightno": flightno,
+                "from": _from,
+                "to": _to,
+                "departure": departure_time,
+                "arrival": arrival_time,
+                "airline_id": airline_id,
+                "monday": monday,
+                "tuesday": tuesday,
+                "wednesday": wednesday,
+                "thursday": thursday,
+                "friday": friday,
+                "saturday": saturday,
+                "sunday": sunday
+            }
+        )
 
     return dummy_data
 
@@ -360,7 +448,13 @@ def generate_passenger_data(fake, n):
         first_name = fake.first_name()
         last_name = fake.last_name()
 
-        dummy_data.append((passportno, first_name, last_name))
+        dummy_data.append(
+            {
+                "passportno": passportno,
+                "firstname": first_name,
+                "lastname": last_name
+            }
+        )
     return dummy_data
 
 
@@ -391,7 +485,19 @@ def generate_passengerdetails_data(fake, n):
         emailaddress = fake.company_email() if random.choice([True, False]) else None
         telephoneno = fake.country_calling_code() + fake.basic_phone_number() if random.choice([True, False]) else None
 
-        dummy_data.append((passenger_id, birthdate, sex, street, city, zipcode, country, emailaddress, telephoneno))
+        dummy_data.append(
+            {
+                "passenger_id": passenger_id,
+                "birthdate": birthdate,
+                "sex": sex,
+                "street": street,
+                "city": city,
+                "zip": zipcode,
+                "country": country,
+                "emailaddress": emailaddress,
+                "telephoneno": telephoneno
+            }
+        )
 
     return dummy_data
 
@@ -425,16 +531,28 @@ def generate_weatherdata_data(fake, n):
             station = random.randint(1, 20001)
         check_duplicate_station.add(station)
 
-        temperature = float(fake.decimal(left_digits=2, right_digits=1, positive=True))
-        humidity = float(fake.decimal(left_digits=3, right_digits=1, positive=True))
-        airpressure = float(fake.decimal(left_digits=8, right_digits=2, positive=True))
-        wind = float(fake.decimal(left_digits=3, right_digits=2, positive=True))
+        temperature = float(fake.pydecimal(left_digits=2, right_digits=1, positive=True))
+        humidity = float(fake.pydecimal(left_digits=3, right_digits=1, positive=True))
+        airpressure = float(fake.pydecimal(left_digits=8, right_digits=2, positive=True))
+        wind = float(fake.pydecimal(left_digits=3, right_digits=2, positive=True))
         weather_enums = ['Nebel-Schneefall', 'Schneefall', 'Regen', 'Regen-Schneefall', 'Nebel-Regen',
                          'Nebel-Regen-Gewitter', 'Gewitter', 'Nebel', 'Regen-Gewitter']
         weather = random.choice(weather_enums) if random.choice([True, False]) else None
         winddirection = random.randint(0, 360)
 
-        dummy_data.append((log_date, _time, station, temperature, humidity, airpressure, wind, weather, winddirection))
+        dummy_data.append(
+            {
+                "log_date": log_date,
+                "time": _time,
+                "station": station,
+                "temp": temperature,
+                "humidity": humidity,
+                "airpressure": airpressure,
+                "wind": wind,
+                "weather": weather,
+                "winddirection": winddirection
+            }
+        )
 
     return dummy_data
 

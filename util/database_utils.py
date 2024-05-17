@@ -8,17 +8,17 @@ from util.dummy_generators import generate_data_at_once
 from util.error.error_handler import exception_handler
 from util.utils import table_mapper
 
+from sqlalchemy.schema import Table
+from typing import List, Dict, Any
+
 
 @exception_handler
-def execute_sql_file(engine, file_path):
+def execute_sql_file(engine, file_path: str) -> None:
     """
-    데이터베이스가 존재하지 않은 경우, engine connection을 이용해서
-    DDL을 읽고, 해당 내용을 DB에 적용하는 함수.
-    DDL 파일을 보면, 'NOT EXIST'라는 문구가 존재하기 때문에
-    여러번 실행해도 기존 내용을 덮어쓰지 않는다
-    :param engine: 데이터베이스에 연결할 엔진
-    :param file_path: DDL 위치
-    :return:
+    models/airport-ddl.sql을 실행해주는 함수
+
+    @param engine: sqlalchemy의 create_engine()에서 생성된 engine
+    @param file_path: ddl 파일 경로
     """
     with open(file_path, 'r', encoding='utf-8') as file:  # file_path에서 read only, 선택한 encoding으로 파일 열기
         sql_commands = file.read()  # 파일 전체를 읽어서, sql_commands 객체가 built-in function인 open이 읽은 내용을 가리키게됨
@@ -30,15 +30,15 @@ def execute_sql_file(engine, file_path):
 
 
 @exception_handler
-def print_table(engine, table_name):
+def print_table(engine, table_name: str) -> None:
     """
     SQLAlchemy 엔진 객체와 테이블 이름을 사용하여 SQL 쿼리를 실행하고,
     결과를 콘솔에 출력해준다. 함수는 데이터베이스 연결을 관리하며, SELECT 쿼리를 통해
     테이블의 모든 데이터를 검색한다.
 
-    :param engine: SQLAlchemy 엔진 객체
-    :param table_name: 조회할 데이터베이스 테이블의 이름입니다.
-    :raises Exception: 함수 호출 시, Exception을 처리해야 한다.
+    @param engine: SQLAlchemy 엔진 객체
+    @param table_name: 조회할 데이터베이스 테이블의 이름입니다.
+    @raise Exception: 함수 호출 시, Exception을 처리해야 한다.
     """
     with engine.connect() as connection:
         sql = text("SELECT * FROM " + table_name)
@@ -55,13 +55,12 @@ def print_table(engine, table_name):
 
 
 @exception_handler
-def delete_current_data(connection, table):
+def delete_current_data(connection, table: Table) -> None:
     """
     SQLAlchemy를 통해 table을 삭제해주는 함수.
-    :param connection: SQLAlchemy connect (with engine.connect() as connection:)
-    :param table: 삭제할 테이블 metadata (not table name)
-    :return
-    :raises Exception: 함수 호출 시, Exception을 처리해야 한다.
+    @param connection: SQLAlchemy connect (with engine.connect() as connection:)
+    @param table: 삭제할 테이블 metadata (not table name)
+    @raises Exception: 함수 호출 시, Exception을 처리해야 한다.
     """
 
     connection.execute(delete(table))
@@ -88,16 +87,17 @@ def get_table_metadata(engine, table_name):
 def get_all_tables_from_database(engine):
     """
     MySQL 데이터베이스의 DatabaseInfo.database_name 스키마에 존재하는
-    모든 테이블 메타데이터들을 가져와주는 함수
+    모든 테이블 메타데이터에서 table name string을 가져와주는 함수
+    :return: table name list
     """
     metadata = MetaData()
     metadata.reflect(bind=engine)
-    all_tables = list(metadata.tables.keys())
+    all_tables = list(metadata.tables)
     return all_tables
 
 
 @exception_handler
-def insert_into_all_tables(engine, dummy_data: dict, mode: str):
+def insert_into_all_tables(engine, dummy_data, mode):
     """
     dummy_data에 모든 테이블에 넣을 데이터 dictionary를 전달받아서,
     sqlalchemy 함수를 이용해서 dictionary value들을 자동으로 넣어버리는 작업
@@ -112,7 +112,7 @@ def insert_into_all_tables(engine, dummy_data: dict, mode: str):
 
 
 @exception_handler
-def insert_dummy_data(engine, table_name: str, dummy_data: list, mode: str):
+def insert_dummy_data(engine, table_name, dummy_data, mode):
     """
     하나씩 구체적으로 생성된 더미데이터를 원하는 테이블에 삽입해주는 함수
     """
@@ -120,186 +120,13 @@ def insert_dummy_data(engine, table_name: str, dummy_data: list, mode: str):
     table = get_table_metadata(engine, table_name)
 
     with engine.connect() as connection:
-        if table_name == 'airline':
-            # INSERT전, 모든 테이블 데이터 삭제
-            if mode == 'y' or mode == 'Y':
-                delete_current_data(connection, table)
-            for data in dummy_data:
-                connection.execute(table.insert(), {
-                    "iata": data[0],
-                    "airlinename": data[1],
-                    "base_airport": data[2]})
-        elif table_name == 'airport':
-            if mode == 'y' or mode == 'Y':
-                delete_current_data(connection, table)
-            for data in dummy_data:
-                connection.execute(table.insert(), {
-                    "iata": data[0],
-                    "icao": data[1],
-                    "name": data[2]
-                })
-        elif table_name == 'airplane_type':
-            if mode == 'y' or mode == 'Y':
-                delete_current_data(connection, table)
-            for data in dummy_data:
-                connection.execute(table.insert(), {
-                    "identifier": data[0],
-                    "description": data[1]
-                })
-        elif table_name == 'airplane':
-            if mode == 'y' or mode == 'Y':
-                delete_current_data(connection, table)
-            for data in dummy_data:
-                connection.execute(table.insert(), {
-                    "capacity": data[0],
-                    "type_id": data[1],
-                    "airline_id": data[2]
-                })
-        elif table_name == 'airport_geo':
-            if mode == 'y' or mode == 'Y':
-                delete_current_data(connection, table)
-            for data in dummy_data:
-                connection.execute(table.insert(), {
-                    "airport_id": data[0],
-                    "name": data[1],
-                    "city": data[2],
-                    "country": data[3],
-                    "latitude": data[4],
-                    "longitude": data[5],
-                })
-        elif table_name == 'airport_reachable':
-            if mode == 'y' or mode == 'Y':
-                delete_current_data(connection, table)
-            for data in dummy_data:
-                connection.execute(table.insert(), {
-                    "airport_id": data[0],
-                    "hops": data[1]
-                })
-        elif table_name == 'booking':
-            if mode == 'y' or mode == 'Y':
-                delete_current_data(connection, table)
-            for data in dummy_data:
-                connection.execute(table.insert(), {
-                    "flight_id": data[0],
-                    "seat": data[1],
-                    "passenger_id": data[2],
-                    "price": data[3],
-                })
-        elif table_name == 'employee':
-            if mode == 'y' or mode == 'Y':
-                delete_current_data(connection, table)
-            for data in dummy_data:
-                connection.execute(table.insert(), {
-                    "firstname": data[0],
-                    "lastname": data[1],
-                    "birthdate": data[2],
-                    "sex": data[3],
-                    "street": data[4],
-                    "city": data[5],
-                    "zip": data[6],
-                    "country": data[7],
-                    "emailaddress": data[8],
-                    "telephoneno": data[9],
-                    "salary": data[10],
-                    "department": data[11],
-                    "username": data[12],
-                    "password": data[13]
-                })
-        elif table_name == 'flight_log':
-            if mode == 'y' or mode == 'Y':
-                delete_current_data(connection, table)
-            for data in dummy_data:
-                connection.execute(table.insert(), {
-                    "log_date": data[0],
-                    "user": data[1],
-                    "flight_id": data[2],
-                    "flightno_old": data[3],
-                    "flightno_new": data[4],
-                    "from_old": data[5],
-                    "to_old": data[6],
-                    "from_new": data[7],
-                    "to_new": data[8],
-                    "departure_old": data[9],
-                    "arrival_old": data[10],
-                    "departure_new": data[11],
-                    "arrival_new": data[12],
-                    "airplane_id_old": data[13],
-                    "airplane_id_new": data[14],
-                    "airline_id_old": data[15],
-                    "airline_id_new": data[16],
-                    "comment": data[17]
-                })
-        elif table_name == 'flightschedule':
-            if mode == 'y' or mode == 'Y':
-                delete_current_data(connection, table)
-            for data in dummy_data:
-                connection.execute(table.insert(), {
-                    "flightno": data[0],
-                    "from": data[1],
-                    "to": data[2],
-                    "departure": data[3],
-                    "arrival": data[4],
-                    "airline_id": data[5],
-                    "monday": data[6],
-                    "tuesday": data[7],
-                    "wednesday": data[8],
-                    "thursday": data[9],
-                    "friday": data[10],
-                    "saturday": data[11],
-                    "sunday": data[12]
-                })
-        elif table_name == 'flight':
-            if mode == 'y' or mode == 'Y':
-                delete_current_data(connection, table)
-            for data in dummy_data:
-                connection.execute(table.insert(), {
-                    "flightno": data[0],
-                    "from": data[1],
-                    "to": data[2],
-                    "departure": data[3],
-                    "arrival": data[4],
-                    "airline_id": data[5],
-                    "airplane_id": data[6]
-                })
-        elif table_name == "passenger":
-            if mode == 'y' or mode == 'Y':
-                delete_current_data(connection, table)
-            for data in dummy_data:
-                connection.execute(table.insert(), {
-                    "passportno": data[0],
-                    "firstname": data[1],
-                    "lastname": data[2]
-                })
-        elif table_name == "passengerdetails":
-            if mode == 'y' or mode == 'Y':
-                delete_current_data(connection, table)
-            for data in dummy_data:
-                connection.execute(table.insert(), {
-                    "passenger_id": data[0],
-                    "birthdate": data[1],
-                    "sex": data[2],
-                    "street": data[3],
-                    "city": data[4],
-                    "zip": data[5],
-                    "country": data[6],
-                    "emailaddress": data[7],
-                    "telephoneno": data[8]
-                })
-        elif table_name == "weatherdata":
-            if mode == 'y' or mode == 'Y':
-                delete_current_data(connection, table)
-            for data in dummy_data:
-                connection.execute(table.insert(), {
-                    "log_date": data[0],
-                    "time": data[1],
-                    "station": data[2],
-                    "temp": data[3],
-                    "humidity": data[4],
-                    "airpressure": data[5],
-                    "wind": data[6],
-                    "weather": data[7],
-                    "winddirection": data[8]
-                })
+        # DELETE
+        if mode == 'y' or mode == 'Y':
+            delete_current_data(connection, table)
+
+        # INSERT INTO
+        for data in dummy_data:
+            connection.execute(table.insert().values(data))
         connection.commit()
 
 
@@ -382,14 +209,15 @@ def create_all_dummy(engine, fake, n, mode):
     all_dummy_data = {}
     for table in table_list:
         # 테이블 메타데이터마다 더미데이터 n개 생성
-        generated_data = create_all_dummy_helper(fake, table, n)  # 데이터 리스트를 받아서
-        all_dummy_data[table.name] = generated_data  # 테이블이름을 key로 가지는 dictionary에 행마다 넣을 데이터 리스트들 value로 저장
+        table_metadata = get_table_metadata(engine, table)
+        generated_data = create_all_dummy_helper(fake, table_metadata, n)  # 데이터 리스트를 받아서
+        all_dummy_data[table_metadata.name] = generated_data  # 테이블이름을 key로 가지는 dictionary에 행마다 넣을 데이터 리스트들 value로 저장
 
     insert_into_all_tables(engine, all_dummy_data, mode)  # 싹다 삽입
 
 
 @exception_handler
-def is_column_primary_key(engine, table_name: str, col_name: str):
+def is_column_primary_key(engine, table_name, col_name):
     meta_table = get_table_metadata(engine, table_name)
     for column in meta_table.columns:
         if col_name == str(column.name):

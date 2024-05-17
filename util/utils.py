@@ -1,5 +1,6 @@
 import os
 import platform
+from typing import Union, Tuple, Dict, Callable, Any
 
 from util.dummy_generators import (
     generate_airline_data,
@@ -19,19 +20,24 @@ from util.dummy_generators import (
 )
 
 
-# 콘솔 지우는 함수
-def clean_console():
+def clean_console() -> None:
     """
-    운영체제에 따라 콘솔을 clear하도록 명령하는 함수
-    :return: none
+    Clears the console based on the operating system.
+
+    @return: None
     """
     if platform.system() == "Windows":
-        os.system('cls')  # for Windows
+        os.system('cls')  # 윈도우 CMD
     else:
-        os.system('clear')  # for Linux and macOS
+        os.system('clear')  # 윈도우 Powershell, Linux, macOS
 
 
-def print_menu():
+def print_menu() -> None:
+    """
+    Prints the main menu for the dummy data generation program.
+
+    @return: None
+    """
     print("\n더미 데이터 생성 프로그램")
     print("\n1. Generate Dummy one by one")
     print("\n2. Generate Dummy all in one")
@@ -40,12 +46,15 @@ def print_menu():
     print("\n5. Quit program")
 
 
-def user_input(choice):
-
+def user_input(choice: str) -> Union[Tuple[int, str, str], Tuple[int, str], None]:
     """
-    사용자 input을 처리하여 반환하는 함수
-    :return num_records, mode, table_name: choice == 1인경우, 생성할 레코드 개수, 삭제 모드, 테이블 이름 순으로 반환합니다
-    :return num_records, mode: choice == 2인경우
+    Processes user input and returns the corresponding values based on the choice.
+
+    @param choice: User's choice as a string ('1' or '2')
+    @return: A tuple containing the number of records and mode, and optionally the table name.
+             - If choice == '1', returns (num_records, mode, table_name)
+             - If choice == '2', returns (num_records, mode)
+    @raise ValueError: If the mode is not 'y', 'Y', 'n', or 'N'
     """
 
     if choice == '1':
@@ -64,12 +73,15 @@ def user_input(choice):
         return num_records, mode
 
 
-def table_mapper():
-
+def table_mapper() -> Dict[str, Callable[..., Any]]:
     """
-    이 함수를 함수 명이 저장된 dictionary처럼 사용할 수 있습니다.
-    table_mapper()[key] = 'value' 형식을 통해 사용할 수 있습니다.
-    :return dictionary: airportdb의 테이블명과 그 테이블에 맞는 데이터를 생성하는 함수명이 매핑되어 있습니다.
+    Returns a dictionary mapping table names to their corresponding data generation functions.
+
+    This function can be used like a dictionary:
+    table_mapper()[key] = 'value'
+
+    @return: Dictionary where keys are table names in the database schema (like airportdb)
+    and values are the corresponding data generation function names.
     """
 
     return {

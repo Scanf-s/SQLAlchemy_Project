@@ -1,66 +1,61 @@
 import re
+from typing import List, Dict, Any
 
+from faker import Faker
 from sqlalchemy import delete, text, Inspector
+from sqlalchemy.engine import Engine, Connection
 from sqlalchemy.schema import CreateTable, MetaData
+from sqlalchemy.schema import Table, Column
 
 from config.database_info_class import DatabaseInfo
 from util.dummy_generators import generate_data_at_once
 from util.error.error_handler import exception_handler
-from util.utils import table_mapper
-
-from sqlalchemy.schema import Table
-from typing import List, Dict, Any
 
 
 @exception_handler
-def execute_sql_file(engine, file_path: str) -> None:
+def execute_sql_file(engine: Engine, file_path: str) -> None:
     """
-    models/airport-ddl.sql을 실행해주는 함수
+    Executes the SQL commands contained in a file.
 
-    @param engine: sqlalchemy의 create_engine()에서 생성된 engine
-    @param file_path: ddl 파일 경로
+    :param engine: SQLAlchemy engine object created using create_engine()
+    :param file_path: Path to the SQL file containing the commands to execute
     """
-    with open(file_path, 'r', encoding='utf-8') as file:  # file_path에서 read only, 선택한 encoding으로 파일 열기
-        sql_commands = file.read()  # 파일 전체를 읽어서, sql_commands 객체가 built-in function인 open이 읽은 내용을 가리키게됨
+    with open(file_path, 'r', encoding='utf-8') as file:
+        sql_commands = file.read()
     with engine.connect() as connection:
-        for command in sql_commands.split(';'):  # SQL Query는 모두 ';'단위로 실행하므로 ';'로 split해서 리스트에 저장
-            command = command.strip()  # command 양옆에 존재하는 공백 싹다 삭제해야 정상적으로 작동
+        for command in sql_commands.split(';'):
+            command = command.strip()
             if command:
-                connection.execute(text(command))  # string type command를 text로 변환해서 쿼리 실행
+                connection.execute(text(command))
 
 
 @exception_handler
-def print_table(engine, table_name: str) -> None:
+def print_table(engine: Engine, table_name: str) -> None:
     """
-    SQLAlchemy 엔진 객체와 테이블 이름을 사용하여 SQL 쿼리를 실행하고,
-    결과를 콘솔에 출력해준다. 함수는 데이터베이스 연결을 관리하며, SELECT 쿼리를 통해
-    테이블의 모든 데이터를 검색한다.
+    Executes a SQL query using the SQLAlchemy engine to fetch and print all data from the specified table.
 
-    @param engine: SQLAlchemy 엔진 객체
-    @param table_name: 조회할 데이터베이스 테이블의 이름입니다.
-    @raise Exception: 함수 호출 시, Exception을 처리해야 한다.
+    :param engine: SQLAlchemy engine object connected to the target database
+    :param table_name: Name of the database table to query
+    :raises Exception: Any exceptions raised during the execution are handled by the exception handler
     """
     with engine.connect() as connection:
         sql = text("SELECT * FROM " + table_name)
         result = connection.execute(sql)
-        # execute() -> returns CursorResult that a sequence of Row objects.
         conv_result = result.mappings().all()
-        # mappings() -> returns MappingResult
-        # MappingResult.all() -> returns sequence[Rowmapping] array
-        # Rowmapping -> dictionary
-        # 따라서 conv_result에는 dictionary가 담기고, for문으로 돌릴 수 있음
+
         print(f'\n<<<<<<<<<<<<<<<<<<<<<<<<<<< {table_name} 더미데이터 내역 >>>>>>>>>>>>>>>>>>>>>>>>>>>>\n')
         for dic in conv_result:
             print(dic)
 
 
 @exception_handler
-def delete_current_data(connection, table: Table) -> None:
+def delete_current_data(connection: Connection, table: Table) -> None:
     """
-    SQLAlchemy를 통해 table을 삭제해주는 함수.
-    @param connection: SQLAlchemy connect (with engine.connect() as connection:)
-    @param table: 삭제할 테이블 metadata (not table name)
-    @raises Exception: 함수 호출 시, Exception을 처리해야 한다.
+    Deletes all data from the specified table using SQLAlchemy.
+
+    @param connection: SQLAlchemy connection object (e.g., from with engine.connect() as connection:)
+    @param table: SQLAlchemy Table object representing the table to delete data from
+    @raise Exception: Any exceptions raised during the execution are handled by the exception handler
     """
 
     connection.execute(delete(table))
@@ -68,14 +63,13 @@ def delete_current_data(connection, table: Table) -> None:
 
 
 @exception_handler
-def get_table_metadata(engine, table_name):
+def get_table_metadata(engine: Engine, table_name: str) -> Table:
     """
-    MySQL Database에서 table_name과 일치하는 테이블을 찾고,
-    해당 테이블에 해당하는 metadata를 반환하는 함수.
-    table metadata = table을 구성하는 정보가 담긴 데이터를 table metadata라고 함
-    :param engine: SQLAlchemy 엔진 객체
-    :param table_name: 테이블 이름
-    :return table: 테이블 metadata를 반환한다
+    Retrieves metadata for the specified table from the MySQL database.
+
+    @param engine: SQLAlchemy engine object connected to the target database
+    @param table_name: Name of the table as a string
+    @return: SQLAlchemy Table object containing the table's metadata
     """
     metadata = MetaData()
     metadata.reflect(bind=engine)
@@ -84,11 +78,12 @@ def get_table_metadata(engine, table_name):
 
 
 @exception_handler
-def get_all_tables_from_database(engine):
+def get_all_tables_from_database(engine: Engine) -> List[Table]:
     """
-    MySQL 데이터베이스의 DatabaseInfo.database_name 스키마에 존재하는
-    모든 테이블 메타데이터에서 table name string을 가져와주는 함수
-    :return: table name list
+    Retrieves all table metadata from the MySQL database schema specified in the engine.
+
+    @param engine: SQLAlchemy engine object connected to the target database
+    @return: List of SQLAlchemy Table objects
     """
     metadata = MetaData()
     metadata.reflect(bind=engine)
@@ -97,10 +92,13 @@ def get_all_tables_from_database(engine):
 
 
 @exception_handler
-def insert_into_all_tables(engine, dummy_data, mode):
+def insert_into_all_tables(engine, dummy_data: Dict, mode: str) -> None:
     """
-    dummy_data에 모든 테이블에 넣을 데이터 dictionary를 전달받아서,
-    sqlalchemy 함수를 이용해서 dictionary value들을 자동으로 넣어버리는 작업
+    Inserts data into all specified tables using SQLAlchemy.
+
+    @param engine: SQLAlchemy engine object connected to the target database
+    @param dummy_data: Dictionary where keys are table names and values are lists of dictionaries containing dummy data
+    @param mode: Operation mode; 'y' to delete existing data before insertion, 'n' to keep existing data
     """
     with engine.connect() as connection:
         for table_name in dummy_data.keys():
@@ -112,9 +110,14 @@ def insert_into_all_tables(engine, dummy_data, mode):
 
 
 @exception_handler
-def insert_dummy_data(engine, table_name, dummy_data, mode):
+def insert_dummy_data(engine, table_name: str, dummy_data: List[Dict], mode: str) -> None:
     """
-    하나씩 구체적으로 생성된 더미데이터를 원하는 테이블에 삽입해주는 함수
+    Inserts generated dummy data into the specified table.
+
+    @param engine: SQLAlchemy engine object connected to the target database
+    @param table_name: Name of the table as a string
+    @param dummy_data: List of dictionaries containing the dummy data to be inserted
+    @param mode: Operation mode; 'y' to delete existing data before insertion, 'n' to keep existing data
     """
     # DB에서 테이블 원형 가져오기
     table = get_table_metadata(engine, table_name)
@@ -132,20 +135,20 @@ def insert_dummy_data(engine, table_name, dummy_data, mode):
 
 # 해당 COL의 모든 CONSTRAINT및 잡다한 정보를 가져와주는 함수
 @exception_handler
-def get_column_type_detail(table, column):
+def get_column_type_detail(table: Table, column: Column) -> Dict[str, Any]:
     """
-    `table`의 특정한 `column`에 대해 상세한 데이터 타입 정보를 가져오는 함수.
-    type, size, decimal, enum, primary, unique 정보를 획득하여 dictonray에 저장한다.
-    :param table:
-    :param column:
-    :return: column의 상세 정보가 담긴 dictionary를 반환한다. dictionary key는 'table_name', 'col_name', 'type', 'size',
-             'decimal_place', 'enum_values', 'primary', 'unique'이다.
-             - 'type'은 데이터 타입 (예: VARCHAR, INT 등)
-             - 'size'는 데이터 타입의 크기 (예: VARCHAR(255)에서 255)
-             - 'decimal_place'는 소수점 이하 자릿수 (NUMERIC 타입에서 사용)
-             - 'enum_values'는 ENUM 타입의 경우 가능한 값들의 리스트
-             - 'primary'는 해당 컬럼이 기본 키(primary key)일 경우 'True'
-             - 'unique'는 해당 컬럼이 유니크(unique constraint)일 경우 'True'
+    Retrieves detailed column type information for a specific column in a table.
+
+    @param table: SQLAlchemy Table object containing the column
+    @param column: SQLAlchemy Column object for which to retrieve detailed information
+    @return: Dictionary containing detailed information about the column. The dictionary keys are:
+             'table_name', 'col_name', 'type', 'size', 'decimal_place', 'enum_values', 'primary', 'unique'.
+             - 'type' is the data type (e.g., VARCHAR, INT)
+             - 'size' is the size of the data type (e.g., 255 for VARCHAR(255))
+             - 'decimal_place' is the number of decimal places (for NUMERIC types)
+             - 'enum_values' is a list of possible values for ENUM types
+             - 'primary' is 'True' if the column is a primary key
+             - 'unique' is 'True' if the column has a unique constraint
     """
     column_type = column.type
     pattern = r"(\w+)\s*(\((\d+)(,\s*(\d+))?\))?(?:\s*CHARACTER SET \w+)?(?:\s*COLLATE \w+)?"  # 정규식 (CHAT-GPT 사용)
@@ -184,7 +187,15 @@ def get_column_type_detail(table, column):
     return type_detail
 
 
-def create_all_dummy_helper(fake, table, n):
+def create_all_dummy_helper(fake: Faker, table: Table, n: int) -> List[Dict]:
+    """
+    Generates dummy data for the specified table.
+
+    @param fake: Faker object used to generate fake data
+    @param table: SQLAlchemy Table object for which to generate dummy data
+    @param n: Number of dummy data entries to generate
+    @return: List of dictionaries, each containing dummy data for a table row
+    """
     dummy_data = []
     for i in range(n):
         # n개의 더미 데이터 생성
@@ -200,33 +211,54 @@ def create_all_dummy_helper(fake, table, n):
     return dummy_data
 
 
-def create_all_dummy(engine, fake, n, mode):
+def create_all_dummy(engine: Engine, fake: Faker, n: int, mode: str):
     """
-    모든 테이블의 메타데이터를 get_all_tables_from_database()를 통해 가져온 뒤,
-    dictionary에 모든 더미데이터를 저장해서 insert_into_all_tables()에 넘겨주는 작업을 수행하는 함수
+    Retrieves metadata for all tables using get_all_tables_from_database(), generates dummy data for each table,
+    stores the data in a dictionary, and passes it to insert_into_all_tables() for insertion.
+
+    @param engine: SQLAlchemy engine object connected to the target database
+    @param fake: Faker object used to generate fake data
+    @param n: Number of dummy data entries to generate per table
+    @param mode: Operation mode; 'y' to delete existing data before insertion, 'n' to keep existing data
     """
     table_list = get_all_tables_from_database(engine)
     all_dummy_data = {}
     for table in table_list:
-        # 테이블 메타데이터마다 더미데이터 n개 생성
         table_metadata = get_table_metadata(engine, table)
-        generated_data = create_all_dummy_helper(fake, table_metadata, n)  # 데이터 리스트를 받아서
-        all_dummy_data[table_metadata.name] = generated_data  # 테이블이름을 key로 가지는 dictionary에 행마다 넣을 데이터 리스트들 value로 저장
+        generated_data = create_all_dummy_helper(fake, table_metadata, n)
+        all_dummy_data[table_metadata.name] = generated_data
 
-    insert_into_all_tables(engine, all_dummy_data, mode)  # 싹다 삽입
+    insert_into_all_tables(engine, all_dummy_data, mode)
 
 
 @exception_handler
-def is_column_primary_key(engine, table_name, col_name):
+def is_column_primary_key(engine: Engine, table_name: str, col_name: str) -> bool:
+    """
+    Checks if a specific column in a given table is a primary key.
+
+    @param engine: SQLAlchemy engine object connected to the target database
+    @param table_name: Name of the table containing the column
+    @param col_name: Name of the column to check
+    @return: True if the column is a primary key, False otherwise
+    """
     meta_table = get_table_metadata(engine, table_name)
     for column in meta_table.columns:
-        if col_name == str(column.name):
+        if col_name == column.name:
             return column.primary_key
     return False
 
 
 @exception_handler
-def make_column_details_dictionary(engine, inspector, table_name, db_info):
+def make_column_details_dictionary(engine: Engine, inspector: Inspector, table_name: str, db_info: DatabaseInfo):
+    """
+    Retrieves column details for a specified table and stores them in a dictionary.
+
+    @param engine: SQLAlchemy engine object connected to the target database
+    @param inspector: SQLAlchemy Inspector object for reflecting database metadata
+    @param table_name: Name of the table for which to retrieve column details
+    @param db_info: Database information object containing database name
+    @return: Dictionary with table name as key and list of column details as value
+    """
     temp_dict = {}
     columns = inspector.get_columns(table_name, db_info.database_name)
     column_dictionary_list = []
@@ -246,29 +278,42 @@ def make_column_details_dictionary(engine, inspector, table_name, db_info):
 
 
 @exception_handler
-def get_ddl_script(engine):
-    # https://stackoverflow.com/questions/64677402/get-ddl-from-existing-databases-sqlalchemy
+def get_ddl_script(engine: Engine):
+    """
+    Prompts the user for a table name and prints the DDL script for the specified table.
+    https://stackoverflow.com/questions/64677402/get-ddl-from-existing-databases-sqlalchemy
+
+    @param engine: SQLAlchemy engine object connected to the target database
+    @raise ValueError: if table name is not exists in database schema
+    """
     metadata = MetaData()
     metadata.reflect(bind=engine)
     table_name = input('테이블 명 입력 : ')
-    if table_name in table_mapper().keys():
-        for table in metadata.sorted_tables:
-            if table.name == table_name:
-                print(CreateTable(table).compile(engine))
-                break
+
+    if table_name in metadata.tables.keys():
+        table_metadata = metadata.tables[table_name]
+        generated_ddl = CreateTable(table_metadata).compile(engine)
+        print(generated_ddl)
+    else:
+        raise ValueError
 
 
 @exception_handler
-def get_view_list_details(engine, inspector: Inspector, db_info: DatabaseInfo):
+def get_view_list_details(engine: Engine, inspector: Inspector, db_info: DatabaseInfo) -> Dict[str, List]:
+    """
+    Retrieves details of all views in the specified database and returns a dictionary with view names as keys
+    and lists of column details as values.
+
+    @param engine: SQLAlchemy engine object connected to the target database
+    @param inspector: SQLAlchemy Inspector object for reflecting database metadata
+    @param db_info: DatabaseInfo object containing the database name
+    @return: Dictionary with view names as keys and lists of column details as values
+    """
     result = {}
     for view_name in inspector.get_view_names(db_info.database_name):
         view_definition = inspector.get_view_definition(view_name)
-
-        # view columns
-        re_aliases = re.findall(r'AS\s+`(\w+)`', view_definition)
-
-        # real table name
-        re_table_name = re.findall(r'FROM\s+`(\w+)`', view_definition, re.IGNORECASE)
+        re_aliases = re.findall(r'AS\s+`(\w+)`', view_definition)  # 'as'로 alias된 이름 검사
+        re_table_name = re.findall(r'FROM\s+`(\w+)`', view_definition, re.IGNORECASE)  # 테이블 이름 검사
 
         if not re_table_name:
             continue

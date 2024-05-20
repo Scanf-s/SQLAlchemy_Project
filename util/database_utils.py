@@ -250,6 +250,21 @@ def is_column_primary_key(engine: Engine, table_name: str, col_name: str) -> boo
 
 
 @exception_handler
+def get_column_names(inspector: Inspector, table_name: str, db_info: DatabaseInfo) -> List:
+    """
+    Retrieves the names of all columns in the specified table.
+
+    @param inspector: SQLAlchemy Inspector object for reflecting database metadata
+    @param table_name: The name of the table from which to retrieve column names
+    @param db_info: DatabaseInfo object containing the database name
+    @return: List of column names in the specified table
+    """
+
+    columns = inspector.get_columns(table_name, db_info.database_name)
+    return [column['name'] for column in columns]
+
+
+@exception_handler
 def make_column_details_dictionary(engine: Engine, inspector: Inspector, table_name: str, db_info: DatabaseInfo):
     """
     Retrieves column details for a specified table and stores them in a dictionary.
@@ -338,3 +353,39 @@ def get_view_list_details(engine: Engine, inspector: Inspector, db_info: Databas
         result[view_name] = column_dictionary_list
 
     return result
+
+
+@exception_handler
+def create_mysql_view(engine: Engine, inspector: Inspector, table_metadata: Table, db_info: DatabaseInfo) -> None:
+    """
+    Creates a view in the specified MySQL database based on the user-provided table and column selections.
+
+    @param engine: SQLAlchemy engine object connected to the target database
+    @param inspector: SQLAlchemy Inspector object for reflecting database metadata
+    @param table_metadata: SQLAlchemy Table object containing metadata of the base table
+    @param db_info: DatabaseInfo object containing the database connection information
+    @return: None
+    """
+
+    view_target_column_list = []
+    view_name = input("생성할 View 이름을 입력하세요 : ")
+    print(f"Table {table_metadata.name}에 있는 Column 명은 다음과 같습니다.")
+    column_name_list = get_column_names(inspector, table_metadata.name, db_info)
+    print(column_name_list)
+
+    while True:
+        column_name = input("View에 추가할 Column name을 입력해주세요. 'quit'을 입력하면 종료합니다 >>> ")
+        if column_name == 'quit':
+            break
+        elif column_name in column_name_list:
+            view_target_column_list.append(column_name)
+        else:
+            print("잘못된 컬럼 명을 입력했습니다. 상단에 출력된 컬럼 명만 입력해 주세요.")
+
+    columns_str = ", ".join(view_target_column_list)
+    view_statement = f"CREATE VIEW {view_name} AS SELECT {columns_str} FROM {table_metadata.name}"
+
+    with engine.connect() as connection:
+        connection.execute(text(view_statement))
+        connection.commit()
+        print(f"{view_name} 생성 성공")

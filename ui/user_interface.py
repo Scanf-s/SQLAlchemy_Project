@@ -10,7 +10,10 @@ from util.database_utils import (
     create_all_dummy,
     print_table,
     make_column_details_dictionary,
-    get_ddl_script, get_view_list_details
+    get_ddl_script,
+    get_view_list_details,
+    create_mysql_view,
+    get_column_names, get_table_metadata
 )
 from util.error.error_handler import exception_handler
 from util.utils import clean_console, print_menu, table_mapper, user_input
@@ -33,7 +36,7 @@ def main_user_interface(engine: Engine, fake: Faker, inspector: Inspector, db_in
         print_menu()
         choice = input("메뉴 입력: ")
 
-        # 더미 데이터 생성
+        # Create dummy data by table name
         if choice == '1':
             clean_console()
             num_records, mode, table_name = user_input(choice)
@@ -44,16 +47,18 @@ def main_user_interface(engine: Engine, fake: Faker, inspector: Inspector, db_in
             else:
                 print("올바른 테이블명을 입력해주세요.")
 
+        # Create dummy at once
         elif choice == '2':
             clean_console()
             num_records, mode = user_input(choice)
             create_all_dummy(engine, fake, num_records, mode)
 
+        # Using Sqlalchemy inspector
         elif choice == '3':
             clean_console()
             schema_inspector_user_interface(engine, inspector, db_info)
 
-        # 테스트 데이터 출력
+        # Print dummy data
         elif choice == '4':
             clean_console()
             table_name = input("테이블 이름을 정확히 입력해주세요: ")
@@ -63,6 +68,7 @@ def main_user_interface(engine: Engine, fake: Faker, inspector: Inspector, db_in
             else:
                 print_table(engine, table_name)
 
+        # 프로그램 종료
         elif choice == '5':
             clean_console()
             sys.exit(0)
@@ -84,13 +90,16 @@ def schema_inspector_user_interface(engine: Engine, inspector: Inspector, db_inf
     """
 
     print("Database Management Menu")
-    print("1. 현재 접속한 Database의 schema 목록")
+    print("1. 현재 접속한 Database정보 및 schema 목록")
     print("2. 현재 선택한 Schema에 속한 테이블 목록")
     print("3. 현재 선택한 Schema에 속한 뷰 목록")
     print("4. 현재 선택한 Schema에 속한 테이블 목록, 테이블 별 Column 정보, 코멘트 목록 조회")
     print("5. 현재 선택한 Schema에 속한 뷰 목록과 뷰 별 Column 정보, 코멘트 목록 조회")
-    print("6. 특정 테이블의 Column 정보, Comment 조회")
-    print("7. 특정 테이블의 DDL 스크립트 생성")
+    print("6. 특정 테이블의 Column 명 출력")
+    print("7. 특정 테이블의 Column 정보, Comment 조회")
+    print("8. 특정 테이블의 DDL 스크립트 생성")
+    print("9. 새로운 View 생성")
+    print("10. 메인으로 돌아가기")
     menu = int(input("메뉴 입력 : "))
 
     if menu == 1:
@@ -114,12 +123,19 @@ def schema_inspector_user_interface(engine: Engine, inspector: Inspector, db_inf
 
     elif menu == 5:
         result = get_view_list_details(engine, inspector, db_info)
-
-        # 뷰 생성을 안하면 안보이니까 미리 암거나 생성해야한다
         for key, value in result.items():
             print(key, value)
 
     elif menu == 6:
+        result = []
+        table_name = input("테이블 명 입력 : ")
+        if table_name in table_mapper().keys():
+            result.append(get_column_names(engine, inspector, table_name, db_info))
+            print(result)
+        else:
+            print("올바른 테이블명을 입력해주세요.")
+
+    elif menu == 7:
         result = []
         table_name = input("테이블 명 입력 : ")
         if table_name in table_mapper().keys():
@@ -128,5 +144,13 @@ def schema_inspector_user_interface(engine: Engine, inspector: Inspector, db_inf
         else:
             print("올바른 테이블명을 입력해주세요.")
 
-    elif menu == 7:
+    elif menu == 8:
         get_ddl_script(engine)
+
+    elif menu == 9:
+        table_name = input("테이블 명을 입력하세요 : ")
+        table_metadata = get_table_metadata(engine, table_name)
+        create_mysql_view(engine, inspector, table_metadata, db_info)
+
+    elif menu == 10:
+        pass

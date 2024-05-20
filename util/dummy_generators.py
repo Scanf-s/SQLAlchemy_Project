@@ -13,13 +13,13 @@ def generate_airline_data(fake, n):
     :param n: 더미데이터를 생성할 개수
     :return: 생성한 더미 데이터를 반환합니다.
     """
-
+    charset = string.ascii_letters + string.digits + string.punctuation
     check_duplicate_iata = set()
     dummy_data = []
     for i in range(n):
-        airline_iata = fake.lexify(text='??', letters=string.ascii_uppercase)
+        airline_iata = fake.lexify(text='??', letters=charset)
         while airline_iata in check_duplicate_iata:
-            airline_iata = fake.lexify(text='??', letters=string.ascii_uppercase)
+            airline_iata = fake.lexify(text='??', letters=charset)
         check_duplicate_iata.add(airline_iata)
         airline_name = fake.airline()
         base_airport = fake.random_int(min=0, max=32000)
@@ -286,13 +286,13 @@ def generate_flight_data(fake, n):
     :param n: 더미데이터를 생성할 개수
     :return: 생성한 더미 데이터를 반환합니다.
     """
-
+    charset = string.ascii_letters + string.digits + string.punctuation
     check_duplicate_flightno = set()
     dummy_data = []
     for i in range(n):
-        flightno = fake.bothify(text="???-####", letters=string.ascii_uppercase)
+        flightno = fake.bothify(text="???-####", letters=charset)
         while flightno in check_duplicate_flightno:
-            flightno = fake.bothify(text="???-####", letters=string.ascii_uppercase)
+            flightno = fake.bothify(text="???-####", letters=charset)
         check_duplicate_flightno.add(flightno)
 
         _from = random.randint(1, 20001)
@@ -320,11 +320,12 @@ def generate_flight_data(fake, n):
 def generate_flight_log_data(fake, n):
     """
     airportdb의 `flight_log` 테이블에 들어가는 더미데이터를 생성하는 함수
+
     :param fake: fake 라이브러리 사용을 위한 객체
     :param n: 더미데이터를 생성할 개수
     :return: 생성한 더미 데이터를 반환합니다.
     """
-
+    charset = string.ascii_letters + string.digits + string.punctuation
     dummy_data = []
     for i in range(n):
         log_date = fake.date_time_this_decade()
@@ -332,8 +333,8 @@ def generate_flight_log_data(fake, n):
 
         flight_id = random.randint(100000, 500000)
 
-        flightno_old = fake.bothify(text='???-####', letters=string.ascii_uppercase)
-        flightno_new = fake.bothify(text='???-####', letters=string.ascii_uppercase)
+        flightno_old = fake.bothify(text='???-####', letters=charset)
+        flightno_new = fake.bothify(text='???-####', letters=charset)
 
         from_old = random.randint(1, 100)
         to_old = random.randint(1, 100)
@@ -381,17 +382,19 @@ def generate_flight_log_data(fake, n):
 def generate_flightschedule_data(fake, n):
     """
     airportdb의 `flight_schedule` 테이블에 들어가는 더미데이터를 생성하는 함수
+
     :param fake: fake 라이브러리 사용을 위한 객체
     :param n: 더미데이터를 생성할 개수
     :return: 생성한 더미 데이터를 반환합니다.
     """
 
+    charset = string.ascii_letters + string.digits + string.punctuation
     check_duplicate_flightno = set()
     dummy_data = []
     for i in range(n):
-        flightno = fake.bothify(text="???-####", letters=string.ascii_uppercase)
+        flightno = fake.bothify(text="???-####", letters=charset)
         while flightno in check_duplicate_flightno:
-            flightno = fake.bothify(text="???-####", letters=string.ascii_uppercase)
+            flightno = fake.bothify(text="???-####", letters=charset)
         check_duplicate_flightno.add(flightno)
 
         _from = random.randint(1, 20001)
@@ -434,6 +437,7 @@ def generate_flightschedule_data(fake, n):
 def generate_passenger_data(fake, n):
     """
     airportdb의 `passenger` 테이블에 들어가는 더미데이터를 생성하는 함수
+
     :param fake: fake 라이브러리 사용을 위한 객체
     :param n: 더미데이터를 생성할 개수
     :return: 생성한 더미 데이터를 반환합니다.
@@ -463,6 +467,7 @@ def generate_passenger_data(fake, n):
 def generate_passengerdetails_data(fake, n):
     """
     airportdb의 `passenger_details` 테이블에 들어가는 더미데이터를 생성하는 함수
+
     :param fake: fake 라이브러리 사용을 위한 객체
     :param n: 더미데이터를 생성할 개수
     :return: 생성한 더미 데이터를 반환합니다.
@@ -559,42 +564,77 @@ def generate_weatherdata_data(fake, n):
     return dummy_data
 
 
+def generate_distinct_integer(data_type: str, check_num_duplicate: Set[int]) -> int:
+    """
+    Function to generate distinct integer
+
+    @param data_type:
+    @param check_num_duplicate:
+    @return: Returns generated unique integer
+    """
+
+    generated_int = random.randint(1, 20001) if data_type != "TINYINT" else random.randint(0, 2)
+    while generated_int in check_num_duplicate:
+        generated_int = random.randint(1, 20001) if data_type != "TINYINT" else random.randint(0, 2)
+    check_num_duplicate.add(generated_int)
+    return generated_int
+
+
+def generate_distinct_characters(fake: Faker, charset: str, size: int, check_str_duplicate: Set[str]) -> str:
+    """
+    Function to generate distinct characters or string type
+
+    @param fake:
+    @param charset:
+    @param size:
+    @param check_str_duplicate:
+    @return: Returns generated unique characters (String)
+    """
+
+    generated_char = fake.lexify('?' * size, letters=charset)
+    while generated_char in check_str_duplicate:
+        generated_char = fake.lexify('?' * size, letters=charset)
+    check_str_duplicate.add(str(generated_char))
+    return generated_char
+
+
 @exception_handler
-def generate_data_at_once(fake: Faker, type_detail: Dict[str, Any], check_str_duplicate: Set[str], check_num_duplicate: Set[int]) -> Any:
+def generate_data_with_type(fake: Faker, type_detail: Dict[str, Any], check_str_duplicate: Set[str], check_num_duplicate: Set[int]) -> Any:
+    """
+    Generate data using type_detail
+
+    @param fake:
+    @param type_detail:
+    @param check_str_duplicate:
+    @param check_num_duplicate:
+    @return: Returns one specific type of data
+    """
+
     data_type = type_detail['type']
     size = type_detail['size']
     decimal_place = type_detail.get('decimal_place')
+    is_primary = type_detail.get('primary') == 'True'
+    is_unique = type_detail.get('unique') == 'True'
 
     if data_type in ["INTEGER", "SMALLINT", "MEDIUMINT", "TINYINT"]:
-        if type_detail.get('primary') == 'True' or type_detail.get('unique') == 'True':
-            generated_int = random.randint(1, 20001) if data_type != "TINYINT" else random.randint(0, 2)
-            while generated_int in check_num_duplicate:
-                generated_int = random.randint(1, 20001) if data_type != "TINYINT" else random.randint(0, 2)
-            check_num_duplicate.add(generated_int)
-            return generated_int
+        if is_primary or is_unique:
+            return generate_distinct_integer(data_type, check_num_duplicate)
         else:
             # TINYINT가 적용된 column이 0 또는 1만 사용하므로
             return random.randint(1, 20001) if data_type != "TINYINT" else random.randint(0, 2)
 
     elif data_type in ["CHAR", "VARCHAR", "TEXT"]:
-        distinct_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(){}?~'
+        charset = string.ascii_letters + string.digits + string.punctuation
         if data_type == "CHAR" and size:  # char
-            if type_detail.get('primary') == 'True' or type_detail.get('unique') == 'True':
-                # 알파벳 문자만으로 생성하면 최대 676개까지의 ROW밖에 생성할 수 없기 때문에
-                # 다른 문자도 섞어서 해줘야한다.
-                # 추후 수정 예정입니다. (유니코드 사용해서 사용할 수 있는 문자를 늘려봤는데 오류떠서 알파벳만 사용하는중...)
-                generated_char = fake.lexify('?' * size, letters=distinct_chars)
-                while generated_char in check_str_duplicate:
-                    generated_char = fake.lexify('?' * size, letters=distinct_chars)
-                check_str_duplicate.add(str(generated_char))
-                return generated_char
-            else:
-                return fake.lexify('?' * size, letters='distinct_chars')
-        elif size:  # varchar
+            if is_primary or is_unique:
+                return generate_distinct_characters(fake, charset, size, check_str_duplicate)
+            return fake.lexify('?' * size, letters=charset)
+        elif data_type == "VARCHAR" and size:  # varchar
+            if is_primary or is_unique:
+                return generate_distinct_characters(fake, charset, size, check_str_duplicate)
             return fake.text(max_nb_chars=size)
         else:  # text
             return fake.text()
-
 
     elif data_type in ["DECIMAL"]:
         if size and decimal_place:

@@ -8,7 +8,7 @@ from sqlalchemy.schema import CreateTable, MetaData
 from sqlalchemy.schema import Table, Column
 
 from config.database_info_class import DatabaseInfo
-from util.dummy_generators import generate_data_at_once
+from util.dummy_generators import generate_data_with_type
 from util.error.error_handler import exception_handler
 
 
@@ -92,7 +92,7 @@ def get_all_tables_from_database(engine: Engine) -> List[Table]:
 
 
 @exception_handler
-def insert_into_all_tables(engine, dummy_data: Dict, mode: str) -> None:
+def insert_into_all_tables(engine, dummy_data: Dict) -> None:
     """
     Inserts data into all specified tables using SQLAlchemy.
 
@@ -103,8 +103,6 @@ def insert_into_all_tables(engine, dummy_data: Dict, mode: str) -> None:
     with engine.connect() as connection:
         for table_name in dummy_data.keys():
             table_metadata = get_table_metadata(engine, table_name)
-            if mode == 'y' or mode == 'Y':
-                delete_current_data(connection, table_metadata)
             connection.execute(table_metadata.insert(), dummy_data[table_name])
             connection.commit()
 
@@ -206,7 +204,7 @@ def create_all_dummy_helper(fake: Faker, table: Table, n: int) -> List[Dict]:
             if str(column.autoincrement) == "True":
                 continue
             type_detail = get_column_type_detail(table, column)  # 해당 column의 상세정보를 dictionary 형태로 가져와줌
-            data_row[column.name] = generate_data_at_once(fake, type_detail, check_str_duplicate, check_num_duplicate)  # Row 하나씩 더미데이터 생성해줌
+            data_row[column.name] = generate_data_with_type(fake, type_detail, check_str_duplicate, check_num_duplicate)  # Row 하나씩 더미데이터 생성해줌
         dummy_data.append(data_row)  # 리스트에 저장
 
     return dummy_data
@@ -224,12 +222,20 @@ def create_all_dummy(engine: Engine, fake: Faker, n: int, mode: str):
     """
     table_list = get_all_tables_from_database(engine)
     all_dummy_data = {}
+
+    if mode == 'y' or mode == 'Y':
+        with engine.connect() as connection:
+            for table in table_list:
+                table_metadata = get_table_metadata(engine, table)
+                delete_current_data(connection, table_metadata)
+            connection.commit()
+
     for table in table_list:
         table_metadata = get_table_metadata(engine, table)
         generated_data = create_all_dummy_helper(fake, table_metadata, n)
         all_dummy_data[table_metadata.name] = generated_data
 
-    insert_into_all_tables(engine, all_dummy_data, mode)
+    insert_into_all_tables(engine, all_dummy_data)
 
 
 @exception_handler

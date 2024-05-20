@@ -73,7 +73,7 @@ def user_input(choice: str) -> Union[Tuple[int, str, str], Tuple[int, str], None
         return num_records, mode
 
 
-def table_mapper() -> Dict[str, Callable[..., Any]]:
+def table_mapper() -> Dict[str, Callable]:
     """
     Returns a dictionary mapping table names to their corresponding data generation functions.
 

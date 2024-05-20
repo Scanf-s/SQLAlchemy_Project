@@ -41,8 +41,7 @@
     └── utils.py
 ```
 
-### 설치
-#### !!!!추후 Docker로 변경 예정 입니다!!!!
+### 설치 방법
 
 #### 1. 이 저장소를 클론합니다:
 ```bash
@@ -70,10 +69,6 @@ source [path_to_airport-ddl.sql file]
 #### 4. config 폴더의 db_info를 참고하여 mysql 연결 설정, 계정 생성 및 airportdb 사용 권한을 부여합니다.
 
 #### 5. app.py를 실행합니다.
-
-### 실행
-
-프로젝트를 실행하기 위해 다음 명령어를 사용합니다:
 ```bash
 //가상환경이 실행된 상태에서
 python3 app.py

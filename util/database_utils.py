@@ -7,7 +7,7 @@ from sqlalchemy.engine import Engine, Connection
 from sqlalchemy.schema import CreateTable, MetaData
 from sqlalchemy.schema import Table, Column
 
-from config.database_info_class import DatabaseInfo
+from config.DatabaseInfo import DatabaseInfo
 from util.dummy_generators import generate_data_with_type
 from util.error.error_handler import exception_handler
 

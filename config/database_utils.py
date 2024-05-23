@@ -1,7 +1,6 @@
 from sqlalchemy import create_engine, Engine
-
 from util.error.error_handler import exception_handler
-from .database_info_class import DatabaseInfo
+from .DatabaseInfo import DatabaseInfo
 
 
 @exception_handler

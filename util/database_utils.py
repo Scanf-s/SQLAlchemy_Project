@@ -1,8 +1,8 @@
 import re
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any, Union, Sequence
 
 from faker import Faker
-from sqlalchemy import delete, text, Inspector
+from sqlalchemy import delete, text, Inspector, RowMapping, Column
 from sqlalchemy.engine import Engine, Connection
 from sqlalchemy.schema import CreateTable, MetaData
 from sqlalchemy.schema import Table, Column
@@ -29,8 +29,10 @@ def execute_sql_file(engine: Engine, file_path: str) -> None:
                 connection.execute(text(command))
 
 
+# @exception_handler
+# def print_table(engine: Engine, table_name: str) -> None:
 @exception_handler
-def print_table(engine: Engine, table_name: str) -> None:
+def print_table(engine: Engine, table_name: str) -> list[dict]:
     """
     Executes a SQL query using the SQLAlchemy engine to fetch and print all data from the specified table.
 
@@ -41,11 +43,14 @@ def print_table(engine: Engine, table_name: str) -> None:
     with engine.connect() as connection:
         sql = text("SELECT * FROM " + table_name)
         result = connection.execute(sql)
-        conv_result = result.mappings().all()
+        # conv_result = result.mappings().all()
+        conv_result = [dict(row) for row in result.mappings()]
 
-        print(f'\n<<<<<<<<<<<<<<<<<<<<<<<<<<< {table_name} 더미데이터 내역 >>>>>>>>>>>>>>>>>>>>>>>>>>>>\n')
-        for dic in conv_result:
-            print(dic)
+        # print(f'\n<<<<<<<<<<<<<<<<<<<<<<<<<<< {table_name} 더미데이터 내역 >>>>>>>>>>>>>>>>>>>>>>>>>>>>\n')
+        # for dic in conv_result:
+        #     print(dic)
+        return conv_result
+
 
 
 @exception_handler

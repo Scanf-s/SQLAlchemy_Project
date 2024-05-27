@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<nav class="navbar navbar-expand-lg bg-light">
+    <div class="container">
+        <a class="navbar-brand" href="#">Homepage</a>
+    </div>
+</nav>
+<div class="container mt-3">
+    {% if current_user.is_authenticated %}
+        <p>Welcome, {{ current_user.username }}!</p>
+        <!-- 추후, 버튼을 누르면 API DOCUMENTARY를 보여주는 코드 작성 -->
+        <a class="btn btn-danger" href="{{ url_for('OAUTHBLUEPRINT.logout') }}">Logout</a>
+    {% endif %}
+</div>
+{% endblock %}

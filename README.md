@@ -1,11 +1,5 @@
 # 더미데이터 생성 API
 
-# !!!!!!!!!!!!!!!!!FLASK 적용중이라, 아직 작동하지 않습니다!!!!!!!!!!!!
-# !!!!!!!!!!!!!!!!!FLASK is being applied, so it's not working yet!!!!!!!!!!!!
-
-이 프로젝트는 MySQL 데이터베이스에 대한 더미 데이터 생성을 위한 파이썬 프로그램 입니다.
-각 주차마다 과제수행을 통해 점진적으로 기능을 개선 및 확장해 나갈 예정입니다.
-
 ### 개발 환경 및 사용 기술
 ![](https://img.shields.io/badge/Ubuntu-E95420?style=flat&logo=Ubuntu&logoColor=white")
 ![](https://img.shields.io/badge/Poetry-60A5FA?style=flat&logo=Poetry&logoColor=white")

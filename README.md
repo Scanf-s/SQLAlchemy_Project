@@ -79,11 +79,18 @@ Then, modify config/GoogleAPIKey.json
 }
 ```
 
-#### 5. Run Flask project
+#### 5. Run Flask-migrate
 ```bash
 poetry shell
-flask run
+flask db init
+flask db migrate
+flask db upgrade
 ```
 
-#### 6. Open your browser
-- Connect to `127.0.0.1:5000`
+#### 6. Run application and open your browser
+```bash
+flask run
+```
+![image](https://github.com/Scanf-s/SQLAlchemy_Project/assets/105439069/4802f5db-a362-4afe-aca2-d348e3e7ef05)
+
+

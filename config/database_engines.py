@@ -1,4 +1,6 @@
-from sqlalchemy import create_engine, Engine
+from typing import Tuple
+
+from sqlalchemy import create_engine, Engine, text, inspect, Inspector
 from util.error.error_handler import exception_handler
 from .DatabaseInfo import DatabaseInfo
 
@@ -47,3 +49,26 @@ def create_database_connection(db_info: DatabaseInfo) -> Engine:
         echo=False
     )
     return engine
+
+
+def initialize_engine(db_info: DatabaseInfo) -> Tuple[Engine, Inspector]:
+    """
+    Initializes the SQLAlchemy engine and inspector
+
+    @param db_info: DatabaseInfo object containing the database connection information
+    @return: Tuple containing the SQLAlchemy engine and inspector objects
+    """
+
+    # DDL Setting
+    engine = create_engine_connection(db_info)
+    # Change MySQL DDL to flask-SQLAlchemy, flask-Migrate
+    # execute_sql_file(engine, "models/airport-ddl.sql")
+    with engine.connect() as connection:
+        stmt = text("CREATE DATABASE IF NOT EXISTS airportdb;")
+        connection.execute(stmt)
+        connection.commit()
+
+    # DB Connection Setting
+    db_connection_engine = create_database_connection(db_info)
+    inspector = inspect(db_connection_engine)
+    return db_connection_engine, inspector

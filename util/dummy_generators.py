@@ -1,6 +1,7 @@
 import random
 import string
 from typing import Dict, Any, Set
+
 from faker import Faker
 
 from util.error.error_handler import exception_handler
@@ -305,8 +306,8 @@ def generate_flight_data(fake, n):
         dummy_data.append(
             {
                 "flightno": flightno,
-                "from": _from,
-                "to": _to,
+                "from_airport": _from,
+                "to_airport": _to,
                 "departure": departure_time,
                 "arrival": arrival_time,
                 "airline_id": airline_id,

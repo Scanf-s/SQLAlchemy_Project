@@ -1,0 +1,4 @@
+{
+  "CLIENT_KEY": "your_google_api_client_key",
+  "SECRET_KEY": "your_google_api_secret_key"
+}

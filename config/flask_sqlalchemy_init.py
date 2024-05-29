@@ -1,4 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
-from app import app
+
 db = SQLAlchemy()
-db.init_app(app)
+
+
+def init_db(app):
+    with app.app_context():
+        db.init_app(app)
+        db.create_all()

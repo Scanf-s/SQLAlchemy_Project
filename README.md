@@ -106,9 +106,9 @@ poetry install
 ```
 
 ### 4. Register Google API application
-[Register your google API application here](https://console.cloud.google.com/welcome)
-[Google Developer docs for Korean](https://developers.google.com/identity/protocols/oauth2/service-account?hl=ko#creatinganaccount)
-[Reference blog for Korean](https://goldenrabbit.co.kr/2023/08/07/oauth%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%9C-%EA%B5%AC%EA%B8%80-%EB%A1%9C%EA%B7%B8%EC%9D%B8-%EC%9D%B8%EC%A6%9D%ED%95%98%EA%B8%B0-1%ED%8E%B8/)
+[Register your google API application here](https://console.cloud.google.com/welcome)  
+[Google Developer docs for Korean](https://developers.google.com/identity/protocols/oauth2/service-account?hl=ko#creatinganaccount)  
+[Reference blog for Korean](https://goldenrabbit.co.kr/2023/08/07/oauth%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%9C-%EA%B5%AC%EA%B8%80-%EB%A1%9C%EA%B7%B8%EC%9D%B8-%EC%9D%B8%EC%A6%9D%ED%95%98%EA%B8%B0-1%ED%8E%B8/)  
 
 Then, modify config/GoogleAPIKey.json
 ```json

@@ -9,10 +9,57 @@
 
 ### 프로젝트 구조
 ```text
-
+.
+├── README.md
+├── app.py
+├── config
+│   ├── DatabaseInfo.py
+│   ├── GoogleAPIKey.json
+│   ├── __init__.py
+│   ├── database_engines.py
+│   └── flask_sqlalchemy_init.py
+├── controller
+│   ├── __init__.py
+│   ├── api_controller.py
+│   ├── homepage_controller.py
+│   └── oauth_controller.py
+├── models
+│   ├── AirlineModel.py
+│   ├── AirplaneModel.py
+│   ├── AirplaneTypeModel.py
+│   ├── AirportGeoModel.py
+│   ├── AirportModel.py
+│   ├── AirportReachableModel.py
+│   ├── BookingModel.py
+│   ├── EmployeeModel.py
+│   ├── FlightLogModel.py
+│   ├── FlightModel.py
+│   ├── FlightScheduleModel.py
+│   ├── Passenger.py
+│   ├── PassengerDetailsModel.py
+│   ├── UserModel.py
+│   ├── WeatherDataModel.py
+│   ├── __init__.py
+│   └── airport-ddl.sql
+├── poetry.lock
+├── pyproject.toml
+├── requirements.txt
+├── templates
+│   ├── base.html
+│   ├── homepage.html
+│   └── index.html
+└── util
+    ├── CustomJSONEncoder.py
+    ├── __init__.py
+    ├── database_utils.py
+    ├── dummy_generators.py
+    ├── error
+    │   ├── __init__.py
+    │   └── error_handler.py
+    └── utils.py
 ```
 
-### 설치 방법
+### How to Install?
 
 #### 1. Clone repository
 ```bash

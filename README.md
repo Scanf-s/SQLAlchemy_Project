@@ -1,4 +1,4 @@
-# Dummy Data Generation Project Using SQLalchemy, Faker
+# Dummy Data Generation Project
 
 ## 프로젝트 설명
 

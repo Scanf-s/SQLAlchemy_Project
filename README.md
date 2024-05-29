@@ -91,6 +91,9 @@ flask db upgrade
 ```bash
 flask run
 ```
-![image](https://github.com/Scanf-s/SQLAlchemy_Project/assets/105439069/4802f5db-a362-4afe-aca2-d348e3e7ef05)
+
+![image](https://github.com/Scanf-s/SQLAlchemy_Project/assets/105439069/6b1e63ce-405a-4994-9823-ec5969fb3786)
+
+![image](https://github.com/Scanf-s/SQLAlchemy_Project/assets/105439069/3ef3858a-bf09-4417-8f85-c821e9cc4aed)
 
 

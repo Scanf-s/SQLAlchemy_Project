@@ -49,14 +49,15 @@ sudo service mysql start
 
 ```mysql
 mysql -u root -p 123123
-(Or modify config/database_engines.py 'create_engine_connection()'s root password for you'
-
-create user 'test'@'localhost' identified by '123123';
-(Or modify config/DatabaseInfo.py class '_USERNAME', '_PASSWORD' for you)
 ```
+(Or modify the root password in config/database_engines.py's create_engine_connection())
 
-#### 3. Open project with your IDE, Install Poetry
+```mysql
+create user 'test'@'localhost' identified by '123123';
+```
+(Or modify the _USERNAME and _PASSWORD in config/DatabaseInfo.py)
 
+#### 3. Open the Project with Your IDE and Install Poetry
 In your IDE console
 ```bash
 pip install poetry
@@ -65,34 +66,24 @@ poetry config virtualenvs.path "./.venv"
 poetry install
 ```
 
-#### 4. Run Flask project
-```bash
+#### 4. Register Google API application
+[Register your google API application here](https://console.cloud.google.com/welcome)
+[Google Developer docs for Korean](https://developers.google.com/identity/protocols/oauth2/service-account?hl=ko#creatinganaccount)
+[Reference blog for Korean](https://goldenrabbit.co.kr/2023/08/07/oauth%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%9C-%EA%B5%AC%EA%B8%80-%EB%A1%9C%EA%B7%B8%EC%9D%B8-%EC%9D%B8%EC%A6%9D%ED%95%98%EA%B8%B0-1%ED%8E%B8/)
 
+Then, modify config/GoogleAPIKey.json
+```json
+{
+  "CLIENT_KEY": "your_google_api_client_key",
+  "SECRET_KEY": "your_google_api_secret_key"
+}
 ```
 
-### 과제 개요
+#### 5. Run Flask project
+```bash
+poetry shell
+flask run
+```
 
-#### 1주차 과제: 테스트를 위한 더미 데이터 만들기
-
-- **기간**: 4월 17일 ~ 4월 24일
-- **목표**: MySQL 데이터베이스에 14개의 테이블에 대한 더미 데이터 생성
-- **상황**:
-  - MySQL 데이터베이스에 14개 테이블 생성 완료
-  - 각 테이블에 1,000개에서 20,000개 사이의 더미 데이터 필요
-
-#### 2주차 과제: 더미 데이터 생성 로직 공통화
-
-- **기간**: 4월 24일 ~ 5월 1일
-- **목표**: 반복적인 더미 데이터 생성 작업을 공통화하여 효율성 증대
-- **상황**:
-  - 새로운 테이블 10개 추가
-  - 공통화된 접근 방식 필요
-
-#### 3주차 과제: MySQL DB 관리 도구 개발
-
-- **기간**: 5월 8일 ~ 5월 20일
-- **목표**: 데이터베이스 관리 기능을 자동화하는 도구 개발
-- **필수 구현 요건**:
-  - 여러 DB 접속 정보 관리
-  - 스키마, 테이블, 뷰 정보 조회 기능
-  - DDL 스크립트 생성 기능
+#### 6. Open your browser
+- Connect to `127.0.0.1:5000`

@@ -1,11 +1,11 @@
 # 더미데이터 생성 API
 
 ### 개발 환경 및 사용 기술
-![](https://img.shields.io/badge/Ubuntu-000000?style=flat&logo=Ubuntu&logoColor=white")
-![](https://img.shields.io/badge/Poetry-000000?style=flat&logo=Poetry&logoColor=white")
-![](https://img.shields.io/badge/Python-000000?style=flat&logo=Python&logoColor=white")
-![](https://img.shields.io/badge/SQLAlchemy-000000?style=flat&logo=SQLAlchemy&logoColor=white")
-![](https://img.shields.io/badge/Flask-000000?style=flat&logo=Flask&logoColor=white")
+![](https://img.shields.io/badge/Ubuntu-24292e?style=flat&logo=Ubuntu&logoColor=white")
+![](https://img.shields.io/badge/Poetry-24292e?style=flat&logo=Poetry&logoColor=white")
+![](https://img.shields.io/badge/Python-24292e?style=flat&logo=Python&logoColor=white")
+![](https://img.shields.io/badge/SQLAlchemy-24292e?style=flat&logo=SQLAlchemy&logoColor=white")
+![](https://img.shields.io/badge/Flask-24292e?style=flat&logo=Flask&logoColor=white")
 
 ### 프로젝트 구조
 ```text

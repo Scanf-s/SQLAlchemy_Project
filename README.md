@@ -4,10 +4,12 @@
 
 > 이 프로젝트는 더미 데이터를 생성하고 MySQL에 삽입한 뒤, API를 통해 데이터를 조회할 수 있도록 구현한 프로젝트입니다.
 
-Faker: 더미 데이터를 생성하기 위해 사용되었습니다.
-SQLAlchemy: ORM을 이용하여 쉽게 테이블 CRUD 작업을 할 수 있도록 도와줍니다.
-Flask: 간편한 GET 방식의 API를 구현하기 위해 사용되었습니다.
-이 프로젝트는 Faker와 SQLAlchemy 라이브러리 사용에 익숙해지기 위한 목적으로 진행되었습니다. 추후 기회가 된다면 프로젝트를 개선해 나갈 예정입니다.
+- Faker: 더미 데이터를 생성하기 위해 사용되었습니다.
+- SQLAlchemy: ORM을 이용하여 쉽게 테이블 CRUD 작업을 할 수 있도록 도와줍니다.
+- Flask: 간편한 GET 방식의 API를 구현하기 위해 사용되었습니다.
+- 
+이 프로젝트는 Faker와 SQLAlchemy 라이브러리 사용에 익숙해지기 위한 목적으로 진행되었기 때문에, 부족한면이 많이 있습니다.
+추후 기회가 된다면 프로젝트를 개선해 나갈 예정입니다.
 
 ## 개발 환경 및 사용 기술
 ![](https://img.shields.io/badge/Ubuntu-24292e?style=flat&logo=Ubuntu&logoColor=white")

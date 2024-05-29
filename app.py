@@ -1,18 +1,27 @@
+import json
+
 from flask import Flask, render_template, url_for, redirect, flash
 from flask_login import LoginManager, logout_user
 from flask_migrate import Migrate
 from flask_restx import Api
 
 from config.DatabaseInfo import DatabaseInfo
-from config.flask_sqlalchemy_init import db
-from config.myGoogleClientKey import CLIENT_KEY, SECRET_KEY
-from controller.homepage_controller import homepage_blp, dummy_api
+from config.flask_sqlalchemy_init import db, init_db
+from controller.api_controller import dummy_api
+from controller.homepage_controller import homepage_blp
 from controller.oauth_controller import oauth_blp
 from models.UserModel import UserModel
+from util.CustomJSONEncoder import CustomJSONEncoder
 
 app = Flask(__name__)
 db_connection_info = DatabaseInfo()
 
+with open("./config/GoogleAPIKey.json", "r") as f:
+    data = json.load(f)
+    CLIENT_KEY = data["CLIENT_KEY"]
+    SECRET_KEY = data["SECRET_KEY"]
+
+app.json_encoder = CustomJSONEncoder
 app.config.from_mapping(
     SECRET_KEY='test',
     SQLALCHEMY_DATABASE_URI=(
@@ -38,7 +47,7 @@ app.config.from_mapping(
     }
 )
 
-db.init_app(app)
+init_db(app)
 migrate = Migrate(app, db)
 
 login = LoginManager(app)

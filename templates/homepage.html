@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+
 {% block content %}
 <nav class="navbar navbar-expand-lg bg-light">
     <div class="container">
@@ -8,8 +9,13 @@
 <div class="container mt-3">
     {% if current_user.is_authenticated %}
         <p>Welcome, {{ current_user.username }}!</p>
-        <!-- 추후, 버튼을 누르면 API DOCUMENTARY를 보여주는 코드 작성 -->
-        <a class="btn btn-danger" href="{{ url_for('OAUTHBLUEPRINT.logout') }}">Logout</a>
+        <a class="btn btn-danger" href="{{ url_for('logout') }}">Logout</a>
+        <!-- Embed Swagger UI with custom styles -->
+        <div class="iframe-container mt-3">
+            <iframe src="/docs" height="1000px" width="1000px"></iframe>
+        </div>
+    {% else %}
+        <p>Please log in to see the API documentation.</p>
     {% endif %}
 </div>
 {% endblock %}

@@ -1,4 +1,4 @@
-# 더미데이터 생성 API
+# SQLalchemy, Faker를 활용한 더미데이터 생성 프로젝트
 
 ### 개발 환경 및 사용 기술
 ![](https://img.shields.io/badge/Ubuntu-24292e?style=flat&logo=Ubuntu&logoColor=white")
@@ -9,27 +9,7 @@
 
 ### 프로젝트 구조
 ```text
-.
-├── README.md
-├── app.py
-├── config
-│   ├── __init__.py
-│   ├── db.py
-│   └── db_info.py
-├── models
-│   └── airport-ddl.sql
-├── requirements.txt
-├── ui
-│   ├── __init__.py
-│   └── user_interface.py
-└── util
-    ├── __init__.py
-    ├── database_utils.py
-    ├── dummy_generators.py
-    ├── error
-    │   ├── __init__.py
-    │   └── error_handler.py
-    └── utils.py
+
 ```
 
 ### 설치 방법

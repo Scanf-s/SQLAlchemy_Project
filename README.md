@@ -8,16 +8,10 @@
 
 ### 개발 환경 및 사용 기술
 ![](https://img.shields.io/badge/Ubuntu-E95420?style=flat&logo=Ubuntu&logoColor=white")
-![](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=Docker&logoColor=white")
+![](https://img.shields.io/badge/Poetry-60A5FA?style=flat&logo=Poetry&logoColor=white")
 ![](https://img.shields.io/badge/Python-3776AB?style=flat&logo=Python&logoColor=white")
 ![](https://img.shields.io/badge/SQLAlchemy-D71F00?style=flat&logo=SQLAlchemy&logoColor=white")
 ![](https://img.shields.io/badge/Flask-000000?style=flat&logo=Flask&logoColor=white")
-
-
-### 필수 조건
-- Ubuntu ^22.04
-- Python ^3.10
-- MySQL Database Server
 
 ### 프로젝트 구조
 ```text
@@ -46,35 +40,40 @@
 
 ### 설치 방법
 
-#### 1. 이 저장소를 클론합니다:
+#### 1. Clone repository
 ```bash
-git clone [repo-link]
+git clone [this repository]
 ```
 
-#### 2. 가상환경 생성 후, requirements를 설치합니다. 
+#### 2. Install MySQL
+[Ubuntu MySQL](https://ubuntu.com/server/docs/install-and-configure-a-mysql-server)
+
 ```bash
-cd path_to_project
-python3 -m venv .venv
-source ./.venv/bin/activate
-
-pip install -r requirements.txt
+sudo apt install mysql-server
+sudo service mysql start
 ```
 
-#### 3. MySQL에서 `airport-ddl.sql` 스크립트를 실행하여 데이터베이스와 테이블을 생성합니다.
+```mysql
+mysql -u root -p 123123
+(Or modify config/database_engines.py 'create_engine_connection()'s root password for you'
+
+create user 'test'@'localhost' identified by '123123';
+(Or modify config/DatabaseInfo.py class '_USERNAME', '_PASSWORD' for you)
 ```
-sudo mysql -u root -p
-> INPUT PASSWORD
 
-source [path_to_airport-ddl.sql file]
-// sql ddl file is in Projectdir/src/models/.
-```
+#### 3. Open project with your IDE, Install Poetry
 
-#### 4. config 폴더의 db_info를 참고하여 mysql 연결 설정, 계정 생성 및 airportdb 사용 권한을 부여합니다.
-
-#### 5. app.py를 실행합니다.
+In your IDE console
 ```bash
-//가상환경이 실행된 상태에서
-python3 app.py
+pip install poetry
+poetry config virtualenvs.in-project true
+poetry config virtualenvs.path "./.venv"
+poetry install
+```
+
+#### 4. Run Flask project
+```bash
+
 ```
 
 ### 과제 개요

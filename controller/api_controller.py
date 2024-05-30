@@ -33,24 +33,24 @@ class GenerateDummy(Resource):
         fake.add_provider(AirTravelProvider)
 
         if current_user.is_authenticated:
-            generate_num = request.args.get('generate_num')
-            table_name = request.args.get('table_name')
-            mode = request.args.get('mode')
+            generate_num = request.get_json().get('generate_num')
+            table_name = request.get_json().get('table_name')
+            mode = request.get_json().get('mode')
 
             if not generate_num or not generate_num.isdigit():
-                return jsonify({"error": "Invalid generate_num parameter"}), 400
+                return jsonify({"error": "Invalid generate_num parameter"})
 
             if table_name not in table_mapper():
-                return jsonify({"error": "Invalid table_name parameter"}), 400
+                return jsonify({"error": "Invalid table_name parameter"})
 
             try:
                 dummy_data = table_mapper()[table_name](fake, int(generate_num))
                 insert_dummy_data(db_connection_engine, table_name, dummy_data, mode)
                 return jsonify({"success": "Dummy data inserted successfully"})
             except Exception as e:
-                return jsonify({"error": str(e)}), 500
+                return jsonify({"error": str(e)})
         else:
-            return jsonify({"error": "Unauthorized"}), 401
+            return jsonify({"error": "Unauthorized"})
 
 
 @dummy_api.route("/generate/all", methods=["GET"])
@@ -63,19 +63,19 @@ class GenerateDummyAtOnce(Resource):
         fake.add_provider(AirTravelProvider)
 
         if current_user.is_authenticated:
-            generate_num = request.args.get('generate_num')
-            mode = request.args.get('mode')
+            generate_num = request.get_json().get('generate_num')
+            mode = request.get_json().get('mode')
 
             if not generate_num or not generate_num.isdigit():
-                return jsonify({"error": "Invalid generate_num parameter"}, 400)
+                return jsonify({"error": "Invalid generate_num parameter"})
 
             try:
                 create_all_dummy(engine=db_connection_engine, fake=fake, n=int(generate_num), mode=mode)
-                return jsonify({"success": "Dummy data inserted successfully"}, 200)
+                return jsonify({"success": "Dummy data inserted successfully"})
             except Exception as e:
-                return jsonify({"error": str(e)}, 500)
+                return jsonify({"error": str(e)})
         else:
-            return jsonify({"error": "Unauthorized"}, 401)
+            return jsonify({"error": "Unauthorized"})
 
 
 @dummy_api.route("/show/table/data", methods=["GET"])
@@ -85,7 +85,7 @@ class GetDummy(Resource):
     @dummy_api.response(200, description="Show specific table's row data")
     def get(self):
         if not current_user.is_authenticated:
-            return jsonify({"error": "Unauthorized"}, 401)
+            return jsonify({"error": "Unauthorized"})
         else:
             table_name = request.args.get('table_name')
             data = print_table(engine=db_connection_engine, table_name=table_name)
@@ -100,7 +100,7 @@ class GetSchemaList(Resource):
     @dummy_api.response(200, description="Show schema list")
     def get(self):
         if not current_user.is_authenticated:
-            return jsonify({"error": "Unauthorized"}, 401)
+            return jsonify({"error": "Unauthorized"})
         else:
             return jsonify({"schema_list": inspector.get_schema_names()})
 
@@ -112,14 +112,14 @@ class GetTableList(Resource):
     @dummy_api.response(200, description="Show table list")
     def get(self):
         if not current_user.is_authenticated:
-            return jsonify({"error": "Unauthorized"}, 401)
+            return jsonify({"error": "Unauthorized"})
 
         schema_name = request.args.get('schema_name')
         if not schema_name:
-            return jsonify({"error": "Schema name is required"}, 400)
+            return jsonify({"error": "Schema name is required"})
 
         if schema_name not in inspector.get_schema_names():
-            return jsonify({"error": "Invalid schema name"}, 400)
+            return jsonify({"error": "Invalid schema name"})
 
         table_list = inspector.get_table_names(schema_name)
         return jsonify({schema_name: table_list})
@@ -132,14 +132,14 @@ class GetTableListDetail(Resource):
     @dummy_api.response(200, description="Show 'table' details in specified schema")
     def get(self):
         if not current_user.is_authenticated:
-            return jsonify({"error": "Unauthorized"}, 401)
+            return jsonify({"error": "Unauthorized"})
 
         schema_name = request.args.get('schema_name')
         if not schema_name:
-            return jsonify({"error": "Schema name is required"}, 400)
+            return jsonify({"error": "Schema name is required"})
 
         if schema_name not in inspector.get_schema_names():
-            return jsonify({"error": "Invalid schema name"}, 400)
+            return jsonify({"error": "Invalid schema name"})
 
         result = []
         tables = inspector.get_table_names(schema_name)
@@ -160,14 +160,14 @@ class GetViewListDetail(Resource):
     @dummy_api.response(200, description="Show 'view' details in specified schema")
     def get(self):
         if not current_user.is_authenticated:
-            return jsonify({"error": "Unauthorized"}, 401)
+            return jsonify({"error": "Unauthorized"})
 
         schema_name = request.args.get('schema_name')
         if not schema_name:
-            return jsonify({"error": "Schema name is required"}, 400)
+            return jsonify({"error": "Schema name is required"})
 
         if schema_name not in inspector.get_schema_names():
-            return jsonify({"error": "Invalid schema name"}, 400)
+            return jsonify({"error": "Invalid schema name"})
 
         view_list = inspector.get_view_names(schema_name)
         return jsonify({schema_name: view_list})
@@ -180,14 +180,14 @@ class GetViewListDetail(Resource):
     @dummy_api.response(200, description="Show view list details")
     def get(self):
         if not current_user.is_authenticated:
-            return jsonify({"error": "Unauthorized"}, 401)
+            return jsonify({"error": "Unauthorized"})
 
         schema_name = request.args.get('schema_name')
         if not schema_name:
-            return jsonify({"error": "Schema name is required"}, 400)
+            return jsonify({"error": "Schema name is required"})
 
         if schema_name not in inspector.get_schema_names():
-            return jsonify({"error": "Invalid schema name"}, 400)
+            return jsonify({"error": "Invalid schema name"})
 
         result = get_view_list_details(db_connection_engine, inspector, DatabaseInfo())
         return jsonify(
@@ -204,15 +204,15 @@ class GetTableInformation(Resource):
     @dummy_api.response(200, description="Show table column details, comments")
     def get(self):
         if not current_user.is_authenticated:
-            return jsonify({"error": "Unauthorized"}, 401)
+            return jsonify({"error": "Unauthorized"})
 
         table_name = request.args.get('table_name')
 
         if not table_name:
-            return jsonify({"error": "Schema name is required"}, 400)
+            return jsonify({"error": "Schema name is required"})
 
         if table_name not in table_mapper().keys():
-            return jsonify({"error": "Invalid schema name"}, 400)
+            return jsonify({"error": "Invalid schema name"})
 
         result = [make_column_details_dictionary(db_connection_engine, inspector, table_name, DatabaseInfo())]
         return jsonify(

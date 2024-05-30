@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>POST TO : http://127.0.0.1:5000/home/api/generate/table</h2>
+    <form id="dummyDataForm">
+        <p>
+            <label>
+                Generate number of dummy data:
+                <input type="number" id="generate_num" name="generate_num" min="0" required>
+            </label>
+        </p>
+        <p>
+            <label>
+                Table name:
+                <input type="text" id="table_name" name="table_name" required>
+            </label>
+        </p>
+        <p>
+            <fieldset>
+                <legend>Delete database before insert data</legend>
+                <div>
+                    <input type="radio" id="yes" name="mode" value="y" checked />
+                    <label for="yes">YES</label>
+                </div>
+                <div>
+                    <input type="radio" id="no" name="mode" value="n" />
+                    <label for="no">NO</label>
+                </div>
+            </fieldset>
+        </p>
+        <p>
+            <button type="button" onclick="submitForm()">Submit</button>
+        </p>
+    </form>
+
+    <script>
+        function submitForm() {
+            const generateNum = document.getElementById('generate_num').value;
+            const tableName = document.getElementById('table_name').value;
+            const mode = document.querySelector('input[name="mode"]:checked').value;
+
+            const data = {
+                generate_num: generateNum,
+                table_name: tableName,
+                mode: mode
+            };
+
+            fetch('http://127.0.0.1:5000/home/api/generate/table', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                alert(JSON.stringify(data));
+            })
+            .catch((error) => {
+                console.error(error);
+                alert(error);
+            });
+        }
+    </script>
+{% endblock %}

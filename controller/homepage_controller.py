@@ -20,3 +20,19 @@ def home():
         return render_template("homepage.html")
     else:
         abort(401)
+        
+        
+@homepage_blp.route("/home/post_table")
+def post_table():
+    if current_user.is_authenticated:
+        return render_template("post_table.html")
+    else:
+        abort(401)
+        
+        
+@homepage_blp.route("/home/post_all")
+def post_all():
+    if current_user.is_authenticated:
+        return render_template("post_all.html")
+    else:
+        abort(401)

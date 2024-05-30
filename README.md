@@ -60,6 +60,8 @@
 ├── templates
 │   ├── base.html
 │   ├── homepage.html
+│   ├── post_all.html
+│   ├── post_table.html
 │   └── index.html
 └── util
     ├── CustomJSONEncoder.py
